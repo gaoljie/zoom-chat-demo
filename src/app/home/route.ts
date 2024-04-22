@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const requestHeaders = new Headers(request.headers);
 
   if (!requestHeaders.get("message_id")) {
-    redirect("/form");
+    redirect("/list");
   }
   const { uid } = getAppContext(
     requestHeaders.get("x-zoom-app-context") as string,

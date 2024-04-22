@@ -1,4 +1,4 @@
 export type ReminderType = {
-  id: number;
-  text: string;
+  id: string;
+  note: string;
 };
