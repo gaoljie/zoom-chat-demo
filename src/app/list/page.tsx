@@ -2,7 +2,7 @@
 import ReminderItem from "@/app/list/reminder-item";
 import { Button } from "@/components/ui/button";
 import FormDialog from "@/app/list/form-dialog";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { defaultValue, FormSchemaType } from "@/app/list/helper";
 import { useReminderStore } from "@/store/reminder-store";
 import { useSearchParams } from "next/navigation";
@@ -15,6 +15,7 @@ const List = () => {
   const message = searchParams.get("message");
 
   useEffect(() => {
+    console.log(message);
     if (message) {
       setDefaultFormValue({ ...defaultValue, note: message });
     }
@@ -52,4 +53,10 @@ const List = () => {
   );
 };
 
-export default List;
+const ListPage = () => (
+  <Suspense>
+    <List />
+  </Suspense>
+);
+
+export default ListPage;
