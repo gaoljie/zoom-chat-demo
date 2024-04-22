@@ -2,15 +2,24 @@
 import ReminderItem from "@/app/list/reminder-item";
 import { Button } from "@/components/ui/button";
 import FormDialog from "@/app/list/form-dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { defaultValue, FormSchemaType } from "@/app/list/helper";
 import { useReminderStore } from "@/store/reminder-store";
+import { useSearchParams } from "next/navigation";
 
 const List = () => {
   const reminders = useReminderStore((state) => state.reminderList);
-  const [open, setOpen] = useState(false);
   const [defaultFormValue, setDefaultFormValue] =
     useState<FormSchemaType | null>(null);
+  const searchParams = useSearchParams();
+  const message = searchParams.get("message");
+
+  useEffect(() => {
+    if (message) {
+      setDefaultFormValue({ ...defaultValue, note: message });
+    }
+  }, [message]);
+
   return (
     <div className={"flex justify-center"}>
       <div className={"grid pt-8 min-w-[400px]"}>
@@ -32,7 +41,9 @@ const List = () => {
       {defaultFormValue ? (
         <FormDialog
           open
-          onOpenChange={(open) => setDefaultFormValue(null)}
+          onOpenChange={(open) => {
+            if (!open) setDefaultFormValue(null);
+          }}
           defaultValues={defaultFormValue}
           setDefaultFormValue={setDefaultFormValue}
         />

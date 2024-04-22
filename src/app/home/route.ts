@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     requestHeaders.get("session_id")?.split("@")[0],
     userContext,
   );
-  const res = await ky
+  const { message } = await ky
     .get(
       `https://api.zoom.us/v2/chat/users/me/messages/${requestHeaders.get("message_id")}`,
       {
@@ -60,7 +60,8 @@ export async function GET(request: Request) {
         },
       },
     )
-    .json();
+    .json<{ message: string }>();
+  redirect(`/list?message=${message}`);
 
   /*
   {
@@ -81,13 +82,13 @@ export async function GET(request: Request) {
   }
    */
 
-  return new Response(JSON.stringify(res), {
-    status: 200,
-    headers: {
-      "X-Content-Type-Options": "nosniff",
-      "Content-Security-Policy": "default-src 'self'",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-      "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-    },
-  });
+  // return new Response(JSON.stringify(res), {
+  //   status: 200,
+  //   headers: {
+  //     "X-Content-Type-Options": "nosniff",
+  //     "Content-Security-Policy": "default-src 'self'",
+  //     "Referrer-Policy": "strict-origin-when-cross-origin",
+  //     "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+  //   },
+  // });
 }
