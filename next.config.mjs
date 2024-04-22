@@ -22,7 +22,7 @@ const nextConfig = {
         ],
       },
       {
-        source: "/form",
+        source: "/list",
         headers: [
           {
             key: "Content-Security-Policy",
