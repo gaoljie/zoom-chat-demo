@@ -1,8 +1,10 @@
 import { btoa } from "buffer";
 
+const zoomApiHost = process.env.ZOOM_API_HOST;
+
 export async function getAccessToken() {
   const { access_token } = await (
-    await fetch("https://zoom.us/oauth/token?grant_type=client_credentials", {
+    await fetch(`${zoomApiHost}/oauth/token?grant_type=client_credentials`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

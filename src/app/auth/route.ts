@@ -11,8 +11,11 @@ export async function GET(request: NextRequest) {
   tokenParams.set("grant_type", "authorization_code");
   tokenParams.set("code", code);
   tokenParams.set("redirect_uri", process.env.ZOOM_REDIRECT_URI as string);
+
+  const zoomApiHost = process.env.ZOOM_API_HOST;
+
   const { access_token, refresh_token } = await ky
-    .post(`https://zoom.us/oauth/token`, {
+    .post(`${zoomApiHost}/oauth/token`, {
       body: tokenParams,
       headers: {
         Authorization: `Basic ${btoa(`${process.env.ZOOM_CLIENT_ID as string}:${process.env.ZOOM_CLIENT_SECRET as string}`)}`,
@@ -23,9 +26,9 @@ export async function GET(request: NextRequest) {
       refresh_token: string;
     }>();
 
-  console.log(access_token);
+  console.log(`access token after successful OAuth = ${access_token}`);
   const { id } = await ky
-    .get(`https://api.zoom.us/v2/users/me`, {
+    .get(`${zoomApiHost}/v2/users/me`, {
       headers: {
         Authorization: `Bearer ${access_token}`,
       },
@@ -36,6 +39,7 @@ export async function GET(request: NextRequest) {
     at: access_token,
     rt: refresh_token,
   };
+  console.log(`userinfo ID after deriving OAuth token = ${id}`);
 
-  redirect(`https://zoom.us/launch/chat?jid=robot_${process.env.ZOOM_BOT_JID}`);
+  redirect(`${zoomApiHost}/launch/chat?jid=robot_${process.env.ZOOM_BOT_JID}`);
 }
