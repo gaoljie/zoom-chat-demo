@@ -1,7 +1,7 @@
 import { getAppContext } from "@/utils/getAppContext";
 import { userContext } from "@/utils/userContext";
-import ky from "ky";
 import { redirect } from "next/navigation";
+import { get, post } from "@/utils/request";
 const zoomApiHost = process.env.ZOOM_API_HOST;
 
 export async function GET(request: Request) {
@@ -20,48 +20,44 @@ export async function GET(request: Request) {
     requestHeaders.get("session_id")?.split("@")[0],
     userContext,
   );
-  const { message } = await ky
-    .get(
-      `${zoomApiHost}/v2/chat/users/me/messages/${requestHeaders.get("message_id")}`,
-      {
-        searchParams: {
-          to_contact: requestHeaders.get("session_id")?.split("@")[0] as string,
-        },
-        headers: {
-          Authorization: `Bearer ${userContext[uid].at}`,
-        },
-        hooks: {
-          beforeRetry: [
-            async () => {
-              const tokenParams = new URLSearchParams();
-              tokenParams.set("grant_type", "refresh_token");
-              tokenParams.set("refresh_token", userContext[uid].rt);
-
-              const { access_token, refresh_token } = await ky
-                .post(`https://zoom.us/oauth/token`, {
-                  body: tokenParams,
-                  headers: {
-                    Authorization: `Basic ${btoa(`${process.env.ZOOM_CLIENT_ID as string}:${process.env.ZOOM_CLIENT_SECRET as string}`)}`,
-                  },
-                })
-                .json<{
-                  access_token: string;
-                  refresh_token: string;
-                }>();
-
-              userContext[uid] = {
-                at: access_token,
-                rt: refresh_token,
-              };
-            },
-          ],
-        },
-        retry: {
-          statusCodes: [401],
-        },
+  const { message } = await get<{ message: string }>(
+    `${zoomApiHost}/v2/chat/users/me/messages/${requestHeaders.get("message_id")}`,
+    {
+      searchParams: {
+        to_contact: requestHeaders.get("session_id")?.split("@")[0] as string,
       },
-    )
-    .json<{ message: string }>();
+      headers: {
+        Authorization: `Bearer ${userContext[uid].at}`,
+      },
+      hooks: {
+        beforeRetry: [
+          async () => {
+            const tokenParams = new URLSearchParams();
+            tokenParams.set("grant_type", "refresh_token");
+            tokenParams.set("refresh_token", userContext[uid].rt);
+
+            const { access_token, refresh_token } = await post<{
+              access_token: string;
+              refresh_token: string;
+            }>(`https://zoom.us/oauth/token`, {
+              body: tokenParams,
+              headers: {
+                Authorization: `Basic ${btoa(`${process.env.ZOOM_CLIENT_ID as string}:${process.env.ZOOM_CLIENT_SECRET as string}`)}`,
+              },
+            });
+
+            userContext[uid] = {
+              at: access_token,
+              rt: refresh_token,
+            };
+          },
+        ],
+      },
+      retry: {
+        statusCodes: [401],
+      },
+    },
+  );
   redirect(`/list?message=${message}`);
 
   /*
