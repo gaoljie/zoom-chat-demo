@@ -1,7 +1,3 @@
-import { btoa } from "buffer";
-
-const zoomApiHost = process.env.ZOOM_API_HOST;
-
 export async function getFromAIService(aiRequest: string) {
   const aiResponse = await (
     await fetch(`${process.env.ZOOM_AI_SERVICE}/v1/chat-bot/invoke`, {
@@ -18,7 +14,7 @@ export async function getFromAIService(aiRequest: string) {
           },
         ],
         model: "gpt-3.5-turbo",
-        task_id: "ze_team_chat_app_text_generation",
+        task_id: "ze_team_remi_hackathon_2024_text_generation",
         user_name: "test",
         choices: 1,
       }),
