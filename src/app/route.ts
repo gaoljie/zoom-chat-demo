@@ -2,6 +2,7 @@ import { getAppContext } from "@/utils/getAppContext";
 import { userContext } from "@/utils/userContext";
 import ky from "ky";
 import { redirect } from "next/navigation";
+const zoomApiHost = process.env.ZOOM_API_HOST;
 
 export async function GET(request: Request) {
   const requestHeaders = new Headers(request.headers);
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
   );
   const { message } = await ky
     .get(
-      `https://api.zoom.us/v2/chat/users/me/messages/${requestHeaders.get("message_id")}`,
+      `${zoomApiHost}/v2/chat/users/me/messages/${requestHeaders.get("message_id")}`,
       {
         searchParams: {
           to_contact: requestHeaders.get("session_id")?.split("@")[0] as string,

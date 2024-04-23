@@ -1,5 +1,5 @@
 import { getAccessToken } from "@/utils/getAccessToken";
-
+const zoomApiHost = process.env.ZOOM_API_HOST;
 export async function POST(request: Request) {
   const res = await request.json();
   const {
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
   if (event === "bot_notification") {
     const data = await (
-      await fetch("https://api.zoom.us/v2/im/chat/messages", {
+      await fetch(`${zoomApiHost}/v2/im/chat/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
