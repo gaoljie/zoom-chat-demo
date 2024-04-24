@@ -1,6 +1,7 @@
 import { createRxDatabase } from "rxdb";
 import { getRxStorageMongoDB } from "rxdb/plugins/storage-mongodb";
 import { getRxStorageMemory } from "rxdb/plugins/storage-memory";
+import { RxDBQueryBuilderPlugin } from 'rxdb/plugins/query-builder';
 
 // const DB = await createRxDatabase({
 //   name: "hackathon_2024_db",
@@ -32,17 +33,32 @@ await DB.addCollections({
   },
 });
 
-export async function getReminder(id: string): Promise<ReminderType[]> {
+export async function getReminder(id: string): Promise<ReminderType> {
   console.log("inside getReminder() method id: ", id);
   // run a query
-  const result: ReminderType[] = await DB.reminders
-    .find({
+  const result: ReminderType = await DB.reminders
+    .findOne({
       selector: {
         reminderId: id,
       },
     })
     .exec();
   console.log(`reminders from DB = ${JSON.stringify(result)}`);
+  return result;
+}
+
+export async function deleteReminder(id: string): Promise<ReminderType> {
+  console.log("inside getReminder() method id: ", id);
+  // run a query
+  const result  = await DB.reminders
+      .findOne({
+        selector: {
+          reminderId: id,
+        },
+      })
+      .exec();
+  result.remove();
+  console.log(`reminder removed from DB = ${JSON.stringify(result)}`);
   return result;
 }
 
@@ -91,13 +107,16 @@ export async function saveReminder(reminder: ReminderType) {
 }
 
 export async function updateReminder(reminder: ReminderType) {
-  console.log("inside InsertAnimal() method");
+  console.log(`inside updateReminder() method, reminder obj = ${JSON.stringify(reminder)}`);
   // insert a record.
   const reminderFromDB = await DB.users
-    .findOne()
-    .where("id")
-    .eq(reminder.reminderId)
-    .exec();
+      .findOne({
+        selector: {
+          reminderId: reminder.reminderId,
+        },
+      })
+      .exec();
+  console.log(` reminder from  DB, ${reminderFromDB}`);
   if (reminderFromDB) {
     if (reminder.title) {
       reminderFromDB.name = reminder.title;
@@ -111,11 +130,12 @@ export async function updateReminder(reminder: ReminderType) {
     if (reminder.status) {
       reminderFromDB.status = reminder.status;
     }
+    console.log(`save reminder to  DB, ${reminderFromDB}`);
+
     await reminderFromDB.save();
   } else {
     console.log("reminder not found");
   }
-  reminderFromDB.name = reminder.title;
   console.log(`Updated Reminder to DB = ${JSON.stringify(reminderFromDB)}`);
   return reminderFromDB;
 }
