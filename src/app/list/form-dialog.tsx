@@ -31,6 +31,7 @@ import { useReminderStore } from "@/store/reminder-store";
 import { Dispatch, SetStateAction } from "react";
 import { RecurringEnum } from "@/types/reminderType";
 import { TagsInput } from "@/components/tags-input";
+import dayjs from "dayjs";
 
 const FormDialog = ({
   open,
@@ -111,64 +112,80 @@ const FormDialog = ({
             <FormField
               control={form.control}
               name="time"
-              render={({ field }) => (
-                <FormItem className="grid grid-cols-4 items-center gap-4">
-                  <FormLabel className="text-right">Time</FormLabel>
-                  <FormControl>
-                    <div className={"flex items-center w-[200px] gap-2"}>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange({
-                            ...field.value,
-                            hours: parseInt(value),
-                          });
-                        }}
-                        defaultValue={field.value.hours + ""}
-                      >
-                        <SelectTrigger aria-label="Hour" id="hour">
-                          <SelectValue placeholder="Hour" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {Array(24)
-                              .fill(null)
-                              .map((_, index) => (
-                                <SelectItem key={index} value={index + ""}>
-                                  {index}
-                                </SelectItem>
-                              ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      :
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange({
-                            ...field.value,
-                            minutes: parseInt(value),
-                          });
-                        }}
-                        defaultValue={field.value.minutes + ""}
-                      >
-                        <SelectTrigger aria-label="Minute" id="minute">
-                          <SelectValue placeholder="Minute" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {Array(60)
-                              .fill(null)
-                              .map((_, index) => (
-                                <SelectItem key={index} value={index + ""}>
-                                  {index}
-                                </SelectItem>
-                              ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </FormControl>
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const date = dayjs(`${form.getValues("date")} ${field.value}`);
+                return (
+                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                    <FormLabel className="text-right">Time</FormLabel>
+                    <FormControl>
+                      <div className={"flex items-center w-[200px] gap-2"}>
+                        <Select
+                          onValueChange={(value) => {
+                            console.log(
+                              dayjs(`${form.getValues("date")}`)
+                                .set("hour", parseInt(value))
+                                .set("minute", date.minute())
+                                .format("hh:mm A")
+                                .toString(),
+                            );
+                            field.onChange(
+                              dayjs(`${form.getValues("date")}`)
+                                .set("hour", parseInt(value))
+                                .set("minute", date.minute())
+                                .format("hh:mm A")
+                                .toString(),
+                            );
+                          }}
+                          defaultValue={date.hour() + ""}
+                        >
+                          <SelectTrigger aria-label="Hour" id="hour">
+                            <SelectValue placeholder="Hour" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {Array(24)
+                                .fill(null)
+                                .map((_, index) => (
+                                  <SelectItem key={index} value={index + ""}>
+                                    {index}
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        :
+                        <Select
+                          onValueChange={(value) => {
+                            field.onChange(
+                              dayjs(`${form.getValues("date")}`)
+                                .set("hour", date.hour())
+                                .set("minute", parseInt(value))
+                                .format("hh:mm A")
+                                .toString(),
+                            );
+                          }}
+                          defaultValue={date.minute() + ""}
+                        >
+                          <SelectTrigger aria-label="Minute" id="minute">
+                            <SelectValue placeholder="Minute" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {Array(60)
+                                .fill(null)
+                                .map((_, index) => (
+                                  <SelectItem key={index} value={index + ""}>
+                                    {index}
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                );
+              }}
             />
             <FormField
               control={form.control}

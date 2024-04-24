@@ -5,13 +5,10 @@ export const formSchema = z.object({
   reminderId: z.string(),
   title: z.string(),
   description: z.string(),
-  date: z.date(),
+  date: z.string(),
   tags: z.array(z.string()),
   recurring: RecurringEnum,
-  time: z.object({
-    hours: z.number(),
-    minutes: z.number(),
-  }),
+  time: z.string(),
 });
 
 export type FormSchemaType = z.infer<typeof formSchema>;
@@ -19,11 +16,8 @@ export const defaultValue: FormSchemaType = {
   reminderId: "",
   title: "",
   description: "",
-  date: new Date(),
+  date: "2024-04-30",
   tags: [],
-  time: {
-    hours: new Date().getHours(),
-    minutes: new Date().getMinutes(),
-  },
+  time: "10:00 AM",
   recurring: RecurringEnum.enum.NONE,
 };
