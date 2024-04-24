@@ -1,8 +1,10 @@
+const { z } = require("zod");
+const { RecurringEnum } = require("@/types/reminderType");
 const remindersSchema = {
   title: "reminders",
   description: "it contains all reminders for the app",
   version: 0,
-  primaryKey: "id",
+  primaryKey: "reminderId",
   type: "object",
   properties: {
     reminderId: {
@@ -13,7 +15,7 @@ const remindersSchema = {
     userId: {
       type: "string",
     },
-    name: {
+    title: {
       type: "string",
     },
     description: {
@@ -25,7 +27,11 @@ const remindersSchema = {
     status: {
       type: "string",
     },
-    date: {
+    dueDate: {
+      type: "string",
+      format: "date-time",
+    },
+    priority: {
       type: "string",
       format: "date-time",
     },
@@ -36,7 +42,7 @@ const userSchema = {
   title: "User schema",
   description: "describes User",
   version: 0,
-  primaryKey: "id",
+  primaryKey: "userId",
   type: "object",
   properties: {
     userId: {
