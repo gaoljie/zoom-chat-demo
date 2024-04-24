@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { RecurringEnum, ReminderType } from "@/types/reminderType";
 import { getFromAIService } from "@/utils/aiServiceClient";
+
 export async function GET(req: NextRequest, res: NextResponse) {
   try {
     // List of reminders
@@ -28,13 +29,12 @@ export async function GET(req: NextRequest, res: NextResponse) {
         reminderId: "dfkkfgggkgkg",
       },
     ];
-    // Generate the summary text - TODO call AI service to retrieve the summary
-    const summary = reminders
-      .map(
-        (reminder, index) =>
-          `${index + 1}. Meeting at ${reminder.time} on ${reminder.date}: ${reminder.description}`,
-      )
-      .join("\n");
+
+    let summary = "Summary of Reminders:\n";
+    reminders.forEach((reminder, index) => {
+      summary += `${index + 1}. ${reminder.title} at ${reminder.time} on ${reminder.date}: ${reminder.description}\n`;
+    });
+
     let aiResponse = await getFromAIService(summary);
     return NextResponse.json(aiResponse, { status: 200 });
   } catch (error) {
