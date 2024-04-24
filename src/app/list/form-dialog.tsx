@@ -30,6 +30,7 @@ import { formSchema, FormSchemaType } from "@/app/list/helper";
 import { useReminderStore } from "@/store/reminder-store";
 import { Dispatch, SetStateAction } from "react";
 import { RecurringEnum } from "@/types/reminderType";
+import { TagsInput } from "@/components/tags-input";
 
 const FormDialog = ({
   open,
@@ -200,6 +201,22 @@ const FormDialog = ({
                         </SelectGroup>
                       </SelectContent>
                     </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem className="grid grid-cols-4 gap-4">
+                  <FormLabel className="text-right mt-2">Tags</FormLabel>
+                  <FormControl>
+                    <TagsInput
+                      className={"col-span-3"}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
                   </FormControl>
                 </FormItem>
               )}

@@ -6,6 +6,7 @@ export const formSchema = z.object({
   title: z.string(),
   description: z.string(),
   date: z.date(),
+  tags: z.array(z.string()),
   recurring: RecurringEnum,
   time: z.object({
     hours: z.number(),
@@ -19,6 +20,7 @@ export const defaultValue: FormSchemaType = {
   title: "",
   description: "",
   date: new Date(),
+  tags: [],
   time: {
     hours: new Date().getHours(),
     minutes: new Date().getMinutes(),

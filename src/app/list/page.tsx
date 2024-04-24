@@ -47,6 +47,7 @@ const List = () => {
                   ...defaultValue,
                   title: reminder.title,
                   description: reminder.description,
+                  tags: reminder.tags,
                 });
               }}
             />
