@@ -1,10 +1,10 @@
 import { z } from "zod";
-
-export const RecurringEnum = z.enum(["NONE", "DAILY", "WEEKLY", "MONTHLY"]);
+import { RecurringEnum } from "@/types/reminderType";
 
 export const formSchema = z.object({
-  id: z.string(),
-  note: z.string(),
+  reminderId: z.string(),
+  title: z.string(),
+  description: z.string(),
   date: z.date(),
   recurring: RecurringEnum,
   time: z.object({
@@ -15,8 +15,9 @@ export const formSchema = z.object({
 
 export type FormSchemaType = z.infer<typeof formSchema>;
 export const defaultValue: FormSchemaType = {
-  id: "",
-  note: "",
+  reminderId: "",
+  title: "",
+  description: "",
   date: new Date(),
   time: {
     hours: new Date().getHours(),

@@ -6,18 +6,28 @@ import { Suspense, useEffect, useState } from "react";
 import { defaultValue, FormSchemaType } from "@/app/list/helper";
 import { useReminderStore } from "@/store/reminder-store";
 import { useSearchParams } from "next/navigation";
+import { get } from "@/utils/request";
+import { ReminderType } from "@/types/reminderType";
 
 const List = () => {
-  const reminders = useReminderStore((state) => state.reminderList);
+  const { reminderList, resetReminder } = useReminderStore((state) => ({
+    reminderList: state.reminderList,
+    resetReminder: state.resetReminder,
+  }));
   const [defaultFormValue, setDefaultFormValue] =
     useState<FormSchemaType | null>(null);
   const searchParams = useSearchParams();
   const message = searchParams.get("message");
 
   useEffect(() => {
-    console.log(message);
+    get<ReminderType[]>("/reminders").then((res) => {
+      resetReminder(res);
+    });
+  }, [resetReminder]);
+
+  useEffect(() => {
     if (message) {
-      setDefaultFormValue({ ...defaultValue, note: message });
+      setDefaultFormValue({ ...defaultValue, description: message });
     }
   }, [message]);
 
@@ -28,12 +38,16 @@ const List = () => {
           <Button onClick={() => setDefaultFormValue(defaultValue)}>Add</Button>
         </div>
         <div className={"grid gap-2 max-w-md w-full"}>
-          {reminders.map((reminder) => (
+          {reminderList.map((reminder) => (
             <ReminderItem
-              key={reminder.id}
+              key={reminder.reminderId}
               {...reminder}
               onClick={() => {
-                setDefaultFormValue({ ...defaultValue, ...reminder });
+                setDefaultFormValue({
+                  ...defaultValue,
+                  title: reminder.title,
+                  description: reminder.description,
+                });
               }}
             />
           ))}
