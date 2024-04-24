@@ -29,59 +29,49 @@ import {
 import { formSchema, FormSchemaType } from "@/app/list/helper";
 import { useReminderStore } from "@/store/reminder-store";
 import { Dispatch, SetStateAction } from "react";
-import { RecurringEnum } from "@/types/reminderType";
+import { RecurringEnum, ReminderType } from "@/types/reminderType";
 import { TagsInput } from "@/components/tags-input";
 import dayjs from "dayjs";
+import { get, patch, post } from "@/utils/request";
+import { getUserId } from "@/utils/getUserId";
 
 const FormDialog = ({
   open,
   onOpenChange,
-  defaultValues,
-  setDefaultFormValue,
+  curReminder,
+  setCurReminder,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  defaultValues: FormSchemaType;
-  setDefaultFormValue: Dispatch<SetStateAction<FormSchemaType | null>>;
+  curReminder: ReminderType;
+  setCurReminder: Dispatch<SetStateAction<ReminderType | null>>;
 }) => {
-  const { addReminder, updateReminder } = useReminderStore((state) => ({
-    addReminder: state.addReminder,
-    updateReminder: state.updateReminder,
-  }));
+  const { addReminder, updateReminder, resetReminder } = useReminderStore(
+    (state) => ({
+      addReminder: state.addReminder,
+      updateReminder: state.updateReminder,
+      resetReminder: state.resetReminder,
+    }),
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues,
+    defaultValues: curReminder,
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     if (!values.reminderId) {
-      addReminder({
-        reminderId: Math.random() + "",
-        title: "",
-        description: values.description,
-        date: "2024-04-30",
-        time: "10:00 AM",
-        recurring: RecurringEnum.enum.NONE,
-        priority: "1",
-        tags: ["a", "b"],
-        userId: "cnvbvmb",
-      });
+      await post("/api/reminder", { json: { ...values } });
     } else {
-      updateReminder({
-        title: values.title,
-        description: values.description,
-        date: "2024-04-30",
-        time: "10:00 AM",
-        recurring: values.recurring,
-        priority: "1",
-        tags: ["a", "b"],
-        userId: "cnvbvmb",
-      });
+      await patch("/api/reminder", { json: { ...values } });
     }
+    const newList = await get<ReminderType[]>(
+      `/api/reminder?userId=${getUserId()}`,
+    );
 
-    setDefaultFormValue(null);
+    resetReminder(newList);
+    setCurReminder(null);
   }
 
   return (
@@ -108,12 +98,16 @@ const FormDialog = ({
                 </FormItem>
               )}
             />
-            <DatePicker control={form.control} name={"date"} label={"Date"} />
+            <DatePicker
+              control={form.control}
+              name={"dueDate"}
+              label={"Date"}
+            />
             <FormField
               control={form.control}
-              name="time"
+              name="dueDate"
               render={({ field }) => {
-                const date = dayjs(`${form.getValues("date")} ${field.value}`);
+                const date = dayjs(field.value);
                 return (
                   <FormItem className="grid grid-cols-4 items-center gap-4">
                     <FormLabel className="text-right">Time</FormLabel>
@@ -121,19 +115,8 @@ const FormDialog = ({
                       <div className={"flex items-center w-[200px] gap-2"}>
                         <Select
                           onValueChange={(value) => {
-                            console.log(
-                              dayjs(`${form.getValues("date")}`)
-                                .set("hour", parseInt(value))
-                                .set("minute", date.minute())
-                                .format("hh:mm A")
-                                .toString(),
-                            );
                             field.onChange(
-                              dayjs(`${form.getValues("date")}`)
-                                .set("hour", parseInt(value))
-                                .set("minute", date.minute())
-                                .format("hh:mm A")
-                                .toString(),
+                              date.set("hour", parseInt(value)).toString(),
                             );
                           }}
                           defaultValue={date.hour() + ""}
@@ -157,11 +140,7 @@ const FormDialog = ({
                         <Select
                           onValueChange={(value) => {
                             field.onChange(
-                              dayjs(`${form.getValues("date")}`)
-                                .set("hour", date.hour())
-                                .set("minute", parseInt(value))
-                                .format("hh:mm A")
-                                .toString(),
+                              date.set("minute", parseInt(value)).toString(),
                             );
                           }}
                           defaultValue={date.minute() + ""}
@@ -175,7 +154,7 @@ const FormDialog = ({
                                 .fill(null)
                                 .map((_, index) => (
                                   <SelectItem key={index} value={index + ""}>
-                                    {index}
+                                    {index + ""}
                                   </SelectItem>
                                 ))}
                             </SelectGroup>
