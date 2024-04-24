@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
       },
       {
         date: "2024-04-30",
-        time: "10:00 AM",
+        time: "11:00 AM",
         title: "Meeting",
         description: "Weekly meeting with the team",
         recurring: RecurringEnum.enum.WEEKLY,
