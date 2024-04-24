@@ -26,9 +26,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formSchema, FormSchemaType, RecurringEnum } from "@/app/list/helper";
+import { formSchema, FormSchemaType } from "@/app/list/helper";
 import { useReminderStore } from "@/store/reminder-store";
 import { Dispatch, SetStateAction } from "react";
+import { RecurringEnum } from "@/types/reminderType";
 
 const FormDialog = ({
   open,
@@ -53,10 +54,29 @@ const FormDialog = ({
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    if (!values.id) {
-      addReminder({ id: Math.random() + "", note: values.note });
+    if (!values.reminderId) {
+      addReminder({
+        reminderId: Math.random() + "",
+        title: "",
+        description: values.description,
+        date: "2024-04-30",
+        time: "10:00 AM",
+        recurring: RecurringEnum.enum.NONE,
+        priority: "1",
+        tags: ["a", "b"],
+        userId: "cnvbvmb",
+      });
     } else {
-      updateReminder(values);
+      updateReminder({
+        title: values.title,
+        description: values.description,
+        date: "2024-04-30",
+        time: "10:00 AM",
+        recurring: values.recurring,
+        priority: "1",
+        tags: ["a", "b"],
+        userId: "cnvbvmb",
+      });
     }
 
     setDefaultFormValue(null);
@@ -76,7 +96,7 @@ const FormDialog = ({
           >
             <FormField
               control={form.control}
-              name="note"
+              name="description"
               render={({ field }) => (
                 <FormItem className="grid grid-cols-4 items-center gap-4">
                   <FormLabel className="text-right">Note</FormLabel>
