@@ -12,4 +12,13 @@ export type ReminderType = {
   tags: string[];
   userId: string;
   reminderId: string;
+  dueDate: string;
+  category: string;
+  status: string;
+};
+
+export type UserType = {
+  id: string;
+  name: string;
+  preference: string;
 };

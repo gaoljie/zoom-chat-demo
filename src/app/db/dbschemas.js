@@ -1,39 +1,56 @@
-const heroSchema = {
-  title: "hero schema",
-  description: "describes a simple hero",
+const remindersSchema = {
+  title: "reminders",
+  description: "it contains all reminders for the app",
   version: 0,
-  primaryKey: "name",
+  primaryKey: "id",
   type: "object",
   properties: {
-    name: {
+    reminderId: {
       type: "string",
       primary: true,
       maxLength: 100,
     },
-    color: {
+    userId: {
       type: "string",
     },
+    name: {
+      type: "string",
+    },
+    description: {
+      type: "string",
+    },
+    category: {
+      type: "string",
+    },
+    status: {
+      type: "string",
+    },
+    date: {
+      type: "string",
+      format: "date-time",
+    },
   },
-  required: ["color"],
 };
 
-const animalSchema = {
-  title: "Animal schema",
-  description: "describes a simple Animal",
+const userSchema = {
+  title: "User schema",
+  description: "describes User",
   version: 0,
-  primaryKey: "name",
+  primaryKey: "id",
   type: "object",
   properties: {
-    name: {
+    userId: {
       type: "string",
       primary: true,
       maxLength: 100,
     },
-    owner: {
+    preference: {
+      type: "string",
+    },
+    name: {
       type: "string",
     },
   },
-  required: ["color"],
 };
 
-module.exports = { heroSchema, animalSchema };
+module.exports = { remindersSchema, userSchema };

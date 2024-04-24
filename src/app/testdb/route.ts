@@ -1,29 +1,38 @@
-import {
-  getUserFromDB,
-  insertAnimalToDB,
-  insertUserToDB,
-} from "@/app/db/databaseService";
+import { saveReminder, getReminder } from "@/app/db/databaseService";
+
+import { NextApiRequest } from "next";
 import { NextRequest } from "next/server";
+import { ReminderType } from "@/types/reminderType";
 
 export async function GET(request: NextRequest) {
+  console.log(`before calling DB, action `);
   const searchParams = request.nextUrl.searchParams;
-  const action = searchParams.get("action") as string;
-  const name = searchParams.get("name") as string;
-  const owner = searchParams.get("owner") as string;
-  const color = searchParams.get("color") as string;
-
-  console.log(`before calling DB, action = ${action}`);
+  const type = searchParams.get("type") as string;
+  const id = searchParams.get("id") as string;
 
   let dbResponse = {};
-  if (action === "get-user") {
-    dbResponse = await getUserFromDB(name);
-  } else if (action === "insert-animal") {
-    dbResponse = await insertAnimalToDB(name, owner);
-  } else if (action === "insert-user") {
-    dbResponse = await insertUserToDB(name, color);
+  if (type === "get-reminder") {
+    dbResponse = await getReminder(id);
+    console.log(`dbResponse = ${dbResponse}`);
   } else {
-    dbResponse = "unknown action. please check the usage of this API.";
+    dbResponse = "invalid action";
   }
-  console.log(`dbResponse = ${dbResponse}`);
+  return Response.json(dbResponse);
+}
+
+export async function POST(request: NextRequest) {
+  console.log(`before calling DB, action = $(method)`);
+  const searchParams = request.nextUrl.searchParams;
+  const type = searchParams.get("type") as string;
+  const id = searchParams.get("id") as string;
+  let dbResponse = {};
+  if (type === "create-reminder") {
+    const reminder: ReminderType = await request.json();
+    console.log(`reminder = ${JSON.stringify(reminder)}`);
+    await saveReminder(reminder);
+    dbResponse = "Saved!";
+  } else {
+    dbResponse = "invalid action";
+  }
   return Response.json(dbResponse);
 }
