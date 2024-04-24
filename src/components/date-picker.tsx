@@ -13,8 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { ControllerProps, FieldPath, FieldValues } from "react-hook-form";
-import { format } from "date-fns";
 import { cn } from "@/utils/cn";
+import dayjs from "dayjs";
 
 const DatePicker = <
   TFieldValues extends FieldValues = FieldValues,
@@ -42,7 +42,7 @@ const DatePicker = <
                   )}
                 >
                   {field.value ? (
-                    format(field.value, "PPP")
+                    dayjs(field.value, "PPP").toString()
                   ) : (
                     <span>Pick a date</span>
                   )}

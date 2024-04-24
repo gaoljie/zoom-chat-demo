@@ -2,7 +2,7 @@ import { ReminderType } from "@/types/reminderType";
 import { MouseEventHandler } from "react";
 import { Button } from "@/components/ui/button";
 import { useReminderStore } from "@/store/reminder-store";
-
+import { SquareCheck } from "lucide-react";
 const ReminderItem = ({
   reminderId,
   description,
@@ -19,11 +19,8 @@ const ReminderItem = ({
       >
         <span>{description}</span>
       </button>
-      <Button
-        variant={"destructive"}
-        onClick={() => removeReminder(reminderId)}
-      >
-        Delete
+      <Button variant={"ghost"} onClick={() => removeReminder(reminderId)}>
+        <SquareCheck />
       </Button>
     </div>
   );
