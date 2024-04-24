@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useReminderStore } from "@/store/reminder-store";
 
 const ReminderItem = ({
-  id,
-  note,
+  reminderId,
+  description,
   onClick,
 }: ReminderType & { onClick: MouseEventHandler<HTMLButtonElement> }) => {
   const removeReminder = useReminderStore((state) => state.removeReminder);
@@ -17,9 +17,12 @@ const ReminderItem = ({
         }
         onClick={onClick}
       >
-        <span>{note}</span>
+        <span>{description}</span>
       </button>
-      <Button variant={"destructive"} onClick={() => removeReminder(id)}>
+      <Button
+        variant={"destructive"}
+        onClick={() => removeReminder(reminderId)}
+      >
         Delete
       </Button>
     </div>
