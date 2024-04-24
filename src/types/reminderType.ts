@@ -18,7 +18,7 @@ export type ReminderType = {
 };
 
 export type UserType = {
-  id: string;
+  userId: string;
   name: string;
   preference: string;
 };

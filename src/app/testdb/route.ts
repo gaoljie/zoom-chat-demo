@@ -1,4 +1,8 @@
-import { saveReminder, getReminder } from "@/app/db/databaseService";
+import {
+  saveReminder,
+  getReminder,
+  getAllPendingReminders,
+} from "@/app/db/databaseService";
 
 import { NextApiRequest } from "next";
 import { NextRequest } from "next/server";
@@ -12,7 +16,7 @@ export async function GET(request: NextRequest) {
 
   let dbResponse = {};
   if (type === "get-reminder") {
-    dbResponse = await getReminder(id);
+    dbResponse = await getAllPendingReminders();
     console.log(`dbResponse = ${dbResponse}`);
   } else {
     dbResponse = "invalid action";
