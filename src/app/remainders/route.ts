@@ -38,7 +38,6 @@ const reminders: Reminder[] = [
 
 export async function GET(request: NextRequest) {
   try {
-    // Perform any asynchronous operations here (e.g., fetching data from a database) // For now, let's just return a sample remainder data
     return NextResponse.json(reminders, { status: 200 });
   } catch (error) {
     console.error("Error:", error);
