@@ -4,7 +4,8 @@ import { getRemindersFromDB } from "@/utils/remaninderService";
 
 export async function generateReminderSummary() {
   let reminders = await getRemindersFromDB();
-  let summary = "Summary of Reminders:\n";
+  let summary =
+    "Please generate a Summary of Reminders without including the initial acknowledgment:\n";
   reminders.forEach((reminder, index) => {
     summary += `${index + 1}. \n`;
     summary += ` - Date: ${reminder.date}\n`;
