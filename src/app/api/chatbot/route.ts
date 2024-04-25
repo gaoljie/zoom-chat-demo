@@ -291,6 +291,7 @@ async function createReminderAfterConfirm(botRequest: any) {
   let reminderObj = getReminderObjFromContentJson(botReqPayloadObj);
   reminderObj.reminderId = uuid();
   reminderObj.userId = userId;
+  reminderObj.accountId = accountId;
 
   console.log(`reminderObj is ${JSON.stringify(reminderObj)}`);
 
