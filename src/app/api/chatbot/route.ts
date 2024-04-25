@@ -198,7 +198,7 @@ async function summarizeReminders(botRequest: any) {
     `inside summarizeReminders, botRequest = ${JSON.stringify(botRequest)}`,
   );
 
-  let summaryAiResponse = await generateReminderSummary(userId);
+  let summaryAiResponse = await generateReminderSummary(userId, "today", "");
   const summaryAiResponseStr = JSON.stringify(summaryAiResponse);
   console.log(
     "summarizeReminders --> summaryAiResponse " + summaryAiResponseStr,
