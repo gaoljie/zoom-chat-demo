@@ -26,7 +26,7 @@ const ReminderItem = ({
       >
         <span className={isDone ? "line-through" : ""}>{title}</span>
         <span className={"text-rose-600 text-xs"}>
-          {curDate.format("MMM/DD HH:MM")}
+          {curDate.format("MMM/DD HH:mm")}
         </span>
       </button>
       <Button
