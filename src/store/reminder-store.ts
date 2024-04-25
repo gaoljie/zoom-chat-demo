@@ -6,7 +6,7 @@ export const useReminderStore = create<{
   addReminder: (reminder: ReminderType) => void;
   resetReminder: (reminders: ReminderType[]) => void;
   removeReminder: (id: string) => void;
-  updateReminder: (reminder: Partial<ReminderType>) => void;
+  updateReminder: (id: string, reminder: Partial<ReminderType>) => void;
 }>((set) => ({
   reminderList: [],
   resetReminder: (reminders: ReminderType[]) => {
@@ -18,12 +18,10 @@ export const useReminderStore = create<{
     set((state) => ({
       reminderList: state.reminderList.filter((item) => item.reminderId !== id),
     })),
-  updateReminder: (reminder: Partial<ReminderType>) =>
+  updateReminder: (id, reminder: Partial<ReminderType>) =>
     set((state) => ({
       reminderList: state.reminderList.map((item) =>
-        item.reminderId === reminder.reminderId
-          ? { ...item, ...reminder }
-          : item,
+        item.reminderId === id ? { ...item, ...reminder } : item,
       ),
     })),
 }));

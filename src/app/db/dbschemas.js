@@ -15,6 +15,12 @@ const remindersSchema = {
     userId: {
       type: "string",
     },
+    tags: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
     title: {
       type: "string",
     },

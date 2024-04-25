@@ -27,3 +27,7 @@ export function get<T>(url: string, options?: Options): Promise<T> {
 export function post<T>(url: string, options?: Options): Promise<T> {
   return handleResponse(api.post(url, options));
 }
+
+export function patch<T>(url: string, options?: Options): Promise<T> {
+  return handleResponse(api.patch(url, options));
+}
