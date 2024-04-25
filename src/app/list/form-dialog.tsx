@@ -88,7 +88,9 @@ const FormDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Reminder</DialogTitle>
+          <DialogTitle>
+            {curReminder.reminderId ? "Edit Reminder" : "Add Reminder"}
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -230,6 +232,7 @@ const FormDialog = ({
           </form>
         </Form>
         <DialogFooter>
+          <Button variant={"destructive"}>Cancel</Button>
           <Button form={"reminder-form"} type="submit">
             Save changes
           </Button>

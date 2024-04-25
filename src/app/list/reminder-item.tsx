@@ -14,7 +14,6 @@ const ReminderItem = ({
 }: ReminderType & { onClick: MouseEventHandler<HTMLButtonElement> }) => {
   const updateReminder = useReminderStore((state) => state.updateReminder);
   const curDate = dayjs(dueDate);
-  const showDate = curDate.isAfter(dayjs().add(2, "day"));
   const isDone = status === StatusEnum.enum.DONE;
 
   return (
@@ -26,11 +25,9 @@ const ReminderItem = ({
         onClick={onClick}
       >
         <span className={isDone ? "line-through" : ""}>{title}</span>
-        {showDate ? (
-          <span className={"text-rose-600 text-xs"}>
-            {curDate.format("MMM/DD")}
-          </span>
-        ) : null}
+        <span className={"text-rose-600 text-xs"}>
+          {curDate.format("MMM/DD HH:MM")}
+        </span>
       </button>
       <Button
         variant={"ghost"}

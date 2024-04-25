@@ -5,11 +5,10 @@ import FormDialog from "@/app/list/form-dialog";
 import { Suspense, useEffect, useState } from "react";
 import { useReminderStore } from "@/store/reminder-store";
 import { useSearchParams } from "next/navigation";
-import { get, post } from "@/utils/request";
+import { get } from "@/utils/request";
 import { RecurringEnum, ReminderType, StatusEnum } from "@/types/reminderType";
-import { Textarea } from "@/components/ui/textarea";
-import { CaretSortIcon, FileIcon } from "@radix-ui/react-icons";
-import { CalendarCheck, Archive } from "lucide-react";
+import { CaretSortIcon } from "@radix-ui/react-icons";
+import { CalendarCheck, Archive, PlusIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import dayjs from "dayjs";
 import IsToday from "dayjs/plugin/isToday";
@@ -36,7 +35,9 @@ const List = () => {
     dueDate: dayjs().add(1, "day").toString(),
   };
   const { reminderList, resetReminder } = useReminderStore((state) => ({
-    reminderList: state.reminderList,
+    reminderList: state.reminderList.sort((a, b) =>
+      dayjs(a.dueDate).isAfter(dayjs(b.dueDate)) ? 1 : -1,
+    ),
     resetReminder: state.resetReminder,
   }));
   const [curReminder, setCurReminder] = useState<ReminderType | null>(null);
@@ -57,13 +58,13 @@ const List = () => {
   }, [resetReminder]);
 
   const generate = async () => {
-    const promptReminder = await post("/api/ai", { json: { text: prompt } });
-    console.log(promptReminder);
+    // const promptReminder = await post("/api/ai", { json: { text: prompt } });
+    // console.log(promptReminder);
     setCurReminder({
       ...defaultValue,
       userId: getUserId(),
-      title: promptReminder.title,
-      dueDate: promptReminder.dueDate,
+      // title: promptReminder.title,
+      // dueDate: promptReminder.dueDate,
     });
   };
 
@@ -80,23 +81,15 @@ const List = () => {
   return (
     <div className={"flex justify-center"}>
       <div className={"grid pt-8 min-w-[400px]"}>
-        <SearchBar
-          reminders={reminderList}
-          onClickHandler={(reminder) => {
-            setCurReminder(reminder);
-          }}
-        />
-        <div className={"flex justify-center items-center gap-4 mb-4"}>
-          <Textarea
-            className={"bg-white"}
-            value={prompt}
-            onChange={(e) => {
-              setPrompt(e.target.value);
+        <div className={"flex justify-center gap-4 mb-4"}>
+          <SearchBar
+            reminders={reminderList}
+            onClickHandler={(reminder) => {
+              setCurReminder(reminder);
             }}
           />
           <Button className={"flex items-center gap-1"} onClick={generate}>
-            <FileIcon className={"text-white"} />
-            <span>Generate</span>
+            <PlusIcon className={"text-white"} />
           </Button>
         </div>
         <Tabs defaultValue="today" className="w-[400px]">
