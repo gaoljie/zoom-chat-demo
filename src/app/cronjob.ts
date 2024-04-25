@@ -116,6 +116,6 @@ export async function sendReminder(reminder: ReminderType) {
       ],
     },
   });
-
-  sendChatBotMsg(contentStr);
+  let bot = {};
+  sendChatBotMsg(bot, contentStr);
 }

@@ -34,6 +34,8 @@ export async function POST(request: Request) {
       await summarizeReminders(botRequest);
     } else if (command === "list") {
       listReminders(botRequest);
+    } else if (command === "help") {
+      await sendHelpNotification(botRequest);
     } else {
       defaultCommand(
         botRequest,
@@ -737,5 +739,85 @@ function defaultCommand2(botRequest: any) {
       ],
     },
   });
+  sendChatBotMsg(botRequest, contentStr);
+}
+
+async function sendHelpNotification(botRequest) {
+  const {
+    payload: { robotJid, toJid, accountId, userJid, cmd, userId },
+  } = botRequest;
+  console.log(
+    `inside sendReminderNotification, reminder JSON = ${JSON.stringify(botRequest)}`,
+  );
+
+  const contentStr = JSON.stringify({
+    robot_jid: process.env.ZOOM_BOT_JID,
+    to_jid: toJid,
+    visible_to_user: userId,
+    account_id: accountId,
+    user_jid: userJid,
+    content: {
+      settings: {
+        default_sidebar_color: "#0E72ED",
+        is_split_sidebar: true,
+      },
+      head: {
+        text: "Reminder",
+      },
+      body: [
+        {
+          type: "section",
+          sections: [
+            {
+              type: "message",
+              text: "/help  ",
+              style: {
+                bold: true,
+              },
+            },
+            {
+              type: "message",
+              text: "help about the app",
+            },
+
+            {
+              type: "message",
+              text: "/create  ",
+              style: {
+                bold: true,
+              },
+            },
+            {
+              type: "message",
+              text: "create a new reminder. The Reminder app will remind you based on the schedule",
+            },
+            {
+              type: "message",
+              text: "/list  ",
+              style: {
+                bold: true,
+              },
+            },
+            {
+              type: "message",
+              text: "show list of upcoming reminders",
+            },
+            {
+              type: "message",
+              text: "/summary  ",
+              style: {
+                bold: true,
+              },
+            },
+            {
+              type: "message",
+              text: "Summary of reminders for the day",
+            },
+          ],
+        },
+      ],
+    },
+  });
+
   sendChatBotMsg(botRequest, contentStr);
 }
