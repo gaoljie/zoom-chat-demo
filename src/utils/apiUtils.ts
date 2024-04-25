@@ -9,6 +9,10 @@ export function uuid() {
 }
 
 export function filterReminders(reminders, status, dueDate) {
+  console.log("filterReminders------>");
+  if (!reminders || reminders.length == 0) {
+    return [];
+  }
   // Filter by status
   let filteredReminders = reminders.filter((reminder) => {
     if (status === "DONE") {
@@ -34,6 +38,7 @@ export function filterReminders(reminders, status, dueDate) {
       return reminderDueDate === tomorrowDateString;
     });
   }
+  console.log("<-----filterReminders");
   return filteredReminders;
 }
 
