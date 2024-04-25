@@ -54,11 +54,11 @@ export async function POST(request: Request) {
 function getCommand(cmd: string) {
     let regEx = /[\s,;:]+/;
     const command = cmd.split(regEx)[0];
-    return command;
+    return command.toLowerCase();
 }
 
 async function sendChatBotMsg(botRequest, content: string) {
-    console.log(`sending chatBotMsg contentStr = ${content}`);
+    //console.log(`sending chatBotMsg contentStr = ${content}`);
     const data = await (
         await fetch(`${zoomApiHost}/v2/im/chat/messages`, {
             method: "POST",
@@ -83,7 +83,7 @@ async function createReminderPendingConfirm(botRequest: any) {
                    '${cmd}' based on this sentence extract the name of the event. 
                    Response should be only event name,start date format  with 24 hour clock format (yyyy-MM-dd hh:mm:ss) and timezone as IANA format. 
                    Populate the data in this json format {name: '', startDate: '', timeZone: ''} and return only the json.`;
-    console.log(`aiRequest = ${aiRequest}`);
+   // console.log(`aiRequest = ${aiRequest}`);
     let aiResponse = await getFromAIService(aiRequest);
     let aiRespObj = JSON.parse(aiResponse);
    // console.log(`aiResponse = ${aiResponse}`);
@@ -105,7 +105,7 @@ async function createReminderPendingConfirm(botRequest: any) {
 
 async function listReminders(botRequest: any) {
     const {payload: {robotJid, toJid, accountId, userJid, cmd, userId}} = botRequest;
-    console.log(`inside listReminders, botRequest = ${JSON.stringify(botRequest)}`);
+  //  console.log(`inside listReminders, botRequest = ${JSON.stringify(botRequest)}`);
     let result = await getReminderByUserId(userId);
     console.log(`list reminders result = ${result}`)
 
@@ -196,7 +196,7 @@ async function createReminderAfterConfirm(botRequest: any) {
 function  getReminderObjFromContentJson(botReqPayloadObj: any) : any {
     let reminderObj: Partial<ReminderType> = {};
     const sectionsArr = botReqPayloadObj.body.filter( e => e.type === 'section')[0].sections;
-    console.log(`sectionsArr = ${JSON.stringify(sectionsArr)}`);
+   // console.log(`sectionsArr = ${JSON.stringify(sectionsArr)}`);
     const fieldsArr = sectionsArr.filter( e => e.type === 'fields')[0].items;
     const datePickObj = sectionsArr.filter( e => e.type === 'datepicker').filter(e => e.action_id === 'datepicker123')[0];
     const timePickObj = sectionsArr.filter( e => e.type === 'timepicker').filter(e => e.action_id === 'timepicker123')[0];
@@ -244,7 +244,7 @@ async function updateReminderFormFields(botRequest: any) {
     const bot_msg_id = (botReqPayloadObjObj ? botReqPayloadObjObj.bot_msg_id : undefined);
     const msgId =  messageId ? messageId:bot_msg_id;
     console.log(`msgId is ${msgId}`);
-    console.log(`eventName = ${event} , messageId = ${messageId}, actionItem = ${JSON.stringify(actionItem)}, fieldEditItem = ${JSON.stringify(fieldEditItem)} ,bot_msg_id = ${bot_msg_id} , datepicker_item = ${JSON.stringify(datepicker_item)}, timepicker_item = ${JSON.stringify(timepicker_item)} `);
+   // console.log(`eventName = ${event} , messageId = ${messageId}, actionItem = ${JSON.stringify(actionItem)}, fieldEditItem = ${JSON.stringify(fieldEditItem)} ,bot_msg_id = ${bot_msg_id} , datepicker_item = ${JSON.stringify(datepicker_item)}, timepicker_item = ${JSON.stringify(timepicker_item)} `);
     let reminderObj = getReminderObjFromContentJson(botReqPayloadObjObj? botRequest.payload.object.original: botRequest.payload.original);
     if(fieldEditItem) {
         console.log(`fieldEditItem = ${JSON.stringify(fieldEditItem)}`);
@@ -280,14 +280,14 @@ async function updateReminderFormFields(botRequest: any) {
             reminderObj.dueDate = reminderObj.date.replaceAll("/", "-").concat(" ").concat(reminderObj.time).concat(":00");
         }
     }
-    console.log(`reminderObj after updateFormFields = ${JSON.stringify(reminderObj)}`);
+  //  console.log(`reminderObj after updateFormFields = ${JSON.stringify(reminderObj)}`);
     let contentStrUpd = getContentStrForCreateReminderConfirmation(botRequest, reminderObj);
     await updateChatBotImMsg(msgId, contentStrUpd);
 }
 
 
 async function updateChatBotImMsg(msgId: string, contentStr: string) {
-    console.log(`updating chatBotMsg contentStr = ${contentStr}`);
+   // console.log(`updating chatBotMsg contentStr = ${contentStr}`);
     if (!msgId) {
         console.log(`msgId is not found. skipping...`);
         return;
@@ -329,7 +329,7 @@ async function deleteChatBotImMsg(msgId: string, contentStr: string) {
 function getContentStrForCreateReminderConfirmation(botRequest: any, reminderObj: any) :any {
     const {payload: {robotJid, toJid, accountId,userJid, account_id}} = botRequest;
     const { user_jid,robot_jid, to_jid} = botRequest.payload.object ?  botRequest.payload.object : {};
-    console.log(`botRequest = ${ JSON.stringify(botRequest)}`);
+   // console.log(`botRequest = ${ JSON.stringify(botRequest)}`);
     let jsonStr = JSON.stringify({
         robot_jid: (robotJid ? robotJid:robot_jid),
         to_jid:  (toJid ? toJid:to_jid) ,
@@ -407,7 +407,7 @@ function getContentStrForCreateReminderConfirmation(botRequest: any, reminderObj
 function getContentStrForDeleteMsg(botRequest: any) :any {
     const {payload: {robotJid, toJid, accountId,userJid, account_id}} = botRequest;
     const { user_jid,robot_jid, to_jid} = botRequest.payload.object ?  botRequest.payload.object : {};
-    console.log(`botRequest = ${ JSON.stringify(botRequest)}`);
+  //  console.log(`botRequest = ${ JSON.stringify(botRequest)}`);
     let jsonStr = JSON.stringify({
         robot_jid: (robotJid ? robotJid:robot_jid),
         to_jid:  (toJid ? toJid:to_jid) ,
