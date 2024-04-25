@@ -1,7 +1,7 @@
 import { createRxDatabase } from "rxdb";
 import { getRxStorageMongoDB } from "rxdb/plugins/storage-mongodb";
 import { getRxStorageMemory } from "rxdb/plugins/storage-memory";
-import { RxDBQueryBuilderPlugin } from "rxdb/plugins/query-builder";
+import { RxDBQueryBuilderPlugin } from 'rxdb/plugins/query-builder';
 
 const DB = await createRxDatabase({
   name: "hackathon_2024_db",
@@ -50,14 +50,14 @@ export async function getReminder(id: string): Promise<ReminderType> {
 export async function deleteReminder(id: string): Promise<ReminderType> {
   console.log("inside getReminder() method id: ", id);
   // run a query
-  const result = await DB.reminders
-    .findOne({
-      selector: {
-        reminderId: id,
-      },
-    })
-    .exec();
-  if (result) {
+  const result  = await DB.reminders
+      .findOne({
+        selector: {
+          reminderId: id,
+        },
+      })
+      .exec();
+  if(result) {
     result.remove();
     console.log(`reminder removed from DB = ${JSON.stringify(result)}`);
   }
@@ -109,20 +109,16 @@ export async function saveReminder(reminder: ReminderType) {
 }
 
 export async function updateReminder(reminder: ReminderType) {
-  console.log(
-    `inside updateReminder() method, reminder obj = ${JSON.stringify(reminder)}`,
-  );
-  console.log(
-    `inside updateReminder() method, reminder.reminderId = ${reminder.reminderId}`,
-  );
+  console.log(`inside updateReminder() method, reminder obj = ${JSON.stringify(reminder)}`);
+  console.log(`inside updateReminder() method, reminder.reminderId = ${reminder.reminderId}`);
   // insert a record.
   const reminderFromDB = await DB.reminders
-    .findOne({
-      selector: {
-        reminderId: reminder.reminderId,
-      },
-    })
-    .exec();
+      .findOne({
+        selector: {
+          reminderId: reminder.reminderId,
+        },
+      })
+      .exec();
   console.log(` reminder from  DB, ${reminderFromDB}`);
   if (reminderFromDB) {
     const reminderObtToUpdate = {};
