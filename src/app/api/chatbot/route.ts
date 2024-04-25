@@ -1,5 +1,8 @@
 import { getAccessToken } from "@/utils/getAccessToken";
 import { getFromAIService } from "@/utils/aiServiceClient";
+import {saveReminder, getReminderByUserId} from "../../db/databaseService";
+import {ReminderType} from "../../../types/reminderType";
+
 const zoomApiHost = process.env.ZOOM_API_HOST;
 export async function POST(request: Request) {
   const botRequest = await request.json();
@@ -68,19 +71,25 @@ async function createReminder(botRequest: any) {
   console.log(`aiRespObj.name = ${aiRespObj['name']}`);
   console.log(`aiRespObj.startDate = ${aiRespObj['startDate']}`);
   console.log(`aiRespObj.timeZone = ${aiRespObj['timeZone']}`);
+  //saveReminder
 }
 
-function listReminders(botRequest: any) {
+async function listReminders(botRequest: any) {
+  const { robotJid, toJid, accountId, userJid, cmd , userId} = botRequest;
+   console.log(`inside listReminders`);
+   let result = await getReminderByUserId(userId);
+   console.log(`list reminders result = ${result}`)
   // parse cmd str and send notification.
 }
 
 await function summarizeReminders(botRequest: any) {
+  console.log(`inside summarizeReminders`);
   // parse cmd str and send notification.
 }
 
 function defaultCommand(botRequest: any) {
   // parse cmd str and send notification.
-  const { robotJid, toJid, accountId, userJid, cmd } = botRequest;
+  const { robotJid, toJid, accountId, userJid, cmd , userId} = botRequest;
   const contentStr = JSON.stringify({
     robot_jid: robotJid,
     to_jid: toJid,
