@@ -81,7 +81,7 @@ function getCommand(cmd: string) {
   return command.toLowerCase();
 }
 
-async function sendChatBotMsg(botRequest, content: string) {
+async function sendChatBotMsg(botRequest: any, content: string) {
   //console.log(`sending chatBotMsg contentStr = ${content}`);
   const data = await (
     await fetch(`${zoomApiHost}/v2/im/chat/messages`, {
@@ -302,16 +302,17 @@ async function createReminderAfterConfirm(botRequest: any) {
 function getReminderObjFromContentJson(botReqPayloadObj: any): any {
   let reminderObj: Partial<ReminderType> = {};
   const sectionsArr = botReqPayloadObj.body.filter(
-    (e) => e.type === "section",
+    (e: any) => e.type === "section",
   )[0].sections;
   // console.log(`sectionsArr = ${JSON.stringify(sectionsArr)}`);
-  const fieldsArr = sectionsArr.filter((e) => e.type === "fields")[0].items;
+  const fieldsArr = sectionsArr.filter((e: any) => e.type === "fields")[0]
+    .items;
   const datePickObj = sectionsArr
-    .filter((e) => e.type === "datepicker")
-    .filter((e) => e.action_id === "datepicker123")[0];
+    .filter((e: any) => e.type === "datepicker")
+    .filter((e: any) => e.action_id === "datepicker123")[0];
   const timePickObj = sectionsArr
-    .filter((e) => e.type === "timepicker")
-    .filter((e) => e.action_id === "timepicker123")[0];
+    .filter((e: any) => e.type === "timepicker")
+    .filter((e: any) => e.action_id === "timepicker123")[0];
   // console.log(`fieldsArr = ${JSON.stringify(fieldsArr)}`);
   // console.log(`datePickObj = ${JSON.stringify(datePickObj)}`);
   // console.log(`timePickObj = ${JSON.stringify(timePickObj)}`);
@@ -477,9 +478,9 @@ function getContentStrForCreateReminderConfirmation(
   const {
     payload: { robotJid, toJid, accountId, userJid, account_id },
   } = botRequest;
-  const { user_jid, robot_jid, to_jid } = botRequest.payload.object
-    ? botRequest.payload.object
-    : {};
+  const { user_jid, robot_jid, to_jid } = (
+    botRequest.payload.object ? botRequest.payload.object : {}
+  ) as any;
   // console.log(`botRequest = ${ JSON.stringify(botRequest)}`);
   let jsonStr = JSON.stringify({
     robot_jid: robotJid ? robotJid : robot_jid,
@@ -561,9 +562,9 @@ function getContentStrForDeleteMsg(botRequest: any): any {
   const {
     payload: { robotJid, toJid, accountId, userJid, account_id },
   } = botRequest;
-  const { user_jid, robot_jid, to_jid } = botRequest.payload.object
-    ? botRequest.payload.object
-    : {};
+  const { user_jid, robot_jid, to_jid } = (
+    botRequest.payload.object ? botRequest.payload.object : {}
+  ) as any;
   //  console.log(`botRequest = ${ JSON.stringify(botRequest)}`);
   let jsonStr = JSON.stringify({
     robot_jid: robotJid ? robotJid : robot_jid,
