@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateReminderSummary } from "@/utils/summaryService";
-
-export async function GET(req: NextRequest, res: NextResponse) {
+type Params = {
+  id: string;
+};
+export async function GET(req: NextRequest, context: { params: Params }) {
   try {
-    let aiResponse = await generateReminderSummary();
+    const userId = context.params.id;
+    let aiResponse = await generateReminderSummary(userId, "", "");
     return NextResponse.json(aiResponse, { status: 200 });
   } catch (error) {
     console.error("Error:", error);

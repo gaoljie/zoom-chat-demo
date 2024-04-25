@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRemindersFromDB } from "@/utils/remaninderService";
-export async function GET(request: NextRequest) {
+type Params = {
+  id: string;
+};
+
+export async function GET(request: NextRequest, context: { params: Params }) {
   try {
-    let reminders = await getRemindersFromDB();
+    const userId = context.params.id;
+    let reminders = await getRemindersFromDB(userId, "", "");
     return NextResponse.json(reminders, { status: 200 });
   } catch (error) {
     console.error("Error:", error);

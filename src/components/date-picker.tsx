@@ -28,39 +28,43 @@ const DatePicker = <
   return (
     <FormField
       {...props}
-      render={({ field }) => (
-        <FormItem className="grid grid-cols-4 items-center gap-4">
-          <FormLabel className="text-right">{label}</FormLabel>
-          <Popover>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-[240px] pl-3 text-left font-normal",
-                    !field.value && "text-muted-foreground",
-                  )}
-                >
-                  {field.value ? (
-                    dayjs(field.value, "PPP").toString()
-                  ) : (
-                    <span>Pick a date</span>
-                  )}
-                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={field.value}
-                onSelect={field.onChange}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        </FormItem>
-      )}
+      render={({ field }) => {
+        return (
+          <FormItem className="grid grid-cols-4 items-center gap-4">
+            <FormLabel className="text-right">{label}</FormLabel>
+            <Popover>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[240px] pl-3 text-left font-normal",
+                      !field.value && "text-muted-foreground",
+                    )}
+                  >
+                    {field.value ? (
+                      dayjs(field.value).format("YYYY-MM-DD")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={field.value}
+                  onSelect={(value) => {
+                    field.onChange(dayjs(value).toString());
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </FormItem>
+        );
+      }}
     />
   );
 };

@@ -15,6 +15,12 @@ const remindersSchema = {
     userId: {
       type: "string",
     },
+    tags: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
     title: {
       type: "string",
     },
@@ -35,6 +41,14 @@ const remindersSchema = {
       type: "string",
       format: "date-time",
     },
+    accountId: {
+      type: "string",
+      format: "date-time",
+    },
+    timezone: {
+      type: "string",
+      format: "date-time",
+    },
   },
 };
 
@@ -51,6 +65,12 @@ const userSchema = {
       maxLength: 100,
     },
     preference: {
+      type: "string",
+    },
+    at: {
+      type: "string",
+    },
+    rt: {
       type: "string",
     },
     name: {
