@@ -36,3 +36,9 @@ export function filterReminders(reminders, status, dueDate) {
   }
   return filteredReminders;
 }
+
+export function extractDateKeywords(text) {
+  const regex = /\b(?:tomorrow|today)\b/gi;
+  const matches = text.match(regex);
+  return matches ? matches[0] : null;
+}
