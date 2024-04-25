@@ -86,7 +86,7 @@ function getCommand(cmd: string) {
 
 export async function sendChatBotMsg(botRequest: any, content: string) {
   //console.log(`sending chatBotMsg contentStr = ${content}`);
-  const data = await (
+  const data = await(
     await fetch(`${zoomApiHost}/v2/im/chat/messages`, {
       method: "POST",
       headers: {
@@ -94,7 +94,7 @@ export async function sendChatBotMsg(botRequest: any, content: string) {
         Authorization: `Bearer ${await getAccessToken()}`,
       },
       body: content,
-    })
+    }),
   ).json();
   console.log(data);
 }
