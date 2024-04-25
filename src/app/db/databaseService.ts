@@ -3,25 +3,21 @@ import { getRxStorageMongoDB } from "rxdb/plugins/storage-mongodb";
 import { getRxStorageMemory } from "rxdb/plugins/storage-memory";
 import { RxDBQueryBuilderPlugin } from "rxdb/plugins/query-builder";
 
-const DB = await createRxDatabase({
-  name: "hackathon_2024_db",
-  storage: getRxStorageMemory(),
-});
+// const DB = await createRxDatabase({
+//   name: "hackathon_2024_db",
+//   storage: getRxStorageMemory(),
+// });
 
 import { remindersSchema, userSchema } from "./dbschemas";
 import { ReminderType, UserType } from "@/types/reminderType";
 
-/*const DB = await createRxDatabase({
+const DB = await createRxDatabase({
   name: "hackathon_2024_db2",
   storage: getRxStorageMongoDB({
-    /!**
-     * MongoDB connection string
-     * @link https://www.mongodb.com/docs/manual/reference/connection-string/
-     *!/
     connection: "mongodb://localhost:27017",
   }),
   ignoreDuplicate: false,
-});*/
+});
 
 //add a collection
 await DB.addCollections({
@@ -117,6 +113,8 @@ export async function saveReminder(reminder: ReminderType) {
     category: reminder.category,
     status: reminder.status,
     dueDate: reminder.dueDate,
+    timezone: reminder.timezone,
+    accountId: reminder.accountId,
   });
   console.log(`Inserted Reminder to DB = ${JSON.stringify(result)}`);
   return result;
@@ -139,22 +137,27 @@ export async function updateReminder(reminder: ReminderType) {
     .exec();
   console.log(` reminder from  DB, ${reminderFromDB}`);
   if (reminderFromDB) {
-    let reminderObtToUpdate: ReminderType = reminderFromDB;
-    if (reminder.title) {
-      reminderFromDB.title = reminder.title;
-    }
-    if (reminder.description) {
-      reminderFromDB.description = reminder.description;
-    }
-    if (reminder.dueDate) {
-      reminderFromDB.dueDate = reminder.dueDate;
-    }
-    if (reminder.status) {
-      reminderFromDB.status = reminder.status;
-    }
     console.log(`save reminder to  DB, ${reminderFromDB}`);
-
-    await reminderFromDB.patch(reminderFromDB);
+    let updatedReminder: {
+      accountId: string;
+      timezone: string;
+      dueDate: string;
+      description: string;
+      title: string;
+      category: string;
+      userId: string;
+      status: string;
+    } = {
+      userId: reminder.userId,
+      title: reminder.title,
+      description: reminder.description,
+      category: reminder.category,
+      status: reminder.status,
+      dueDate: reminder.dueDate,
+      timezone: reminder.timezone,
+      accountId: reminder.accountId,
+    };
+    await reminderFromDB.patch(updatedReminder);
   } else {
     console.log("reminder not found");
   }

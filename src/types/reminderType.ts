@@ -15,6 +15,8 @@ export type ReminderType = {
   dueDate: string;
   category: string;
   status: string;
+  accountId: string;
+  timezone: string;
 };
 
 export type UserType = {

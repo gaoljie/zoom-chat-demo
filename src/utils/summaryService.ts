@@ -2,7 +2,7 @@ import { RecurringEnum, ReminderType } from "@/types/reminderType";
 import { getFromAIService } from "@/utils/aiServiceClient";
 import { getRemindersFromDB } from "@/utils/remaninderService";
 
-export async function generateReminderSummary(userId) {
+export async function generateReminderSummary(userId: string) {
   let reminders = await getRemindersFromDB(userId);
   let aiResponse = "";
   let summary = "";
