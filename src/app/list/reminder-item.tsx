@@ -2,7 +2,7 @@ import { ReminderType, StatusEnum } from "@/types/reminderType";
 import { MouseEventHandler } from "react";
 import { Button } from "@/components/ui/button";
 import { useReminderStore } from "@/store/reminder-store";
-import { SquareCheck } from "lucide-react";
+import { Square, SquareCheck } from "lucide-react";
 import dayjs from "dayjs";
 import { patch } from "@/utils/request";
 const ReminderItem = ({
@@ -47,7 +47,7 @@ const ReminderItem = ({
           });
         }}
       >
-        <SquareCheck className={isDone ? "text-gray-300" : ""} />
+        {isDone ? <SquareCheck className={"text-gray-300"} /> : <Square />}
       </Button>
     </div>
   );
