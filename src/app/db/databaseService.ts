@@ -203,27 +203,38 @@ export async function saveUser(user: UserType) {
 }
 
 export async function updateUser(user: Partial<UserType>) {
-  console.log("inside InsertAnimal() method");
+  console.log("inside updateUser() method");
   const userFromDb = await DB.users
-    .findOne()
-    .where("id")
-    .eq(user.userId)
+    .findOne({
+      selector: {
+        userId: user.userId,
+      },
+    })
     .exec();
 
   if (!userFromDb) {
     return;
   } else {
-    userFromDb.name = user.name;
-    userFromDb.preference = user.preference;
-    userFromDb.at = user.at;
-    userFromDb.rt = user.rt;
+    const userObjToUpdate: Partial<UserType> = userFromDb;
+    userObjToUpdate.name = user.name;
+    userObjToUpdate.preference = user.preference;
+    userObjToUpdate.at = user.at;
+    userObjToUpdate.rt = user.rt;
     const res = await userFromDb.save();
-
+    return await userFromDb.update({
+      $set: userObjToUpdate,
+    });
     console.log(`Updated User to DB = ${JSON.stringify(user)}`);
     return res;
   }
 }
 
 export async function getUser(userId: string) {
-  return DB.users.findOne().where("userId").eq(userId).exec();
+  return await DB.users
+    .findOne({
+      selector: {
+        userId: userId,
+      },
+    })
+    .exec();
 }

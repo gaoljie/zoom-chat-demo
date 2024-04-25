@@ -45,7 +45,7 @@ export async function GET(request: Request) {
             const { access_token, refresh_token } = await post<{
               access_token: string;
               refresh_token: string;
-            }>(`https://zoom.us/oauth/token`, {
+            }>(`${process.env.ZOOM_API_HOST}/oauth/token`, {
               body: tokenParams,
               headers: {
                 Authorization: `Basic ${btoa(`${process.env.ZOOM_CLIENT_ID as string}:${process.env.ZOOM_CLIENT_SECRET as string}`)}`,
