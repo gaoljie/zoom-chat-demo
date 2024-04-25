@@ -133,22 +133,36 @@ async function summarizeReminders(botRequest: any) {
   );
 
   let summaryAiResponse = await generateReminderSummary(userId);
-  console.log("summarizeReminders --> summaryAiResponse " + summaryAiResponse);
+  const airesponse = JSON.stringify(summaryAiResponse);
+  console.log("summarizeReminders --> summaryAiResponse " + airesponse);
   const contentStr = JSON.stringify({
     robot_jid: robotJid,
     to_jid: toJid,
     account_id: accountId,
     user_jid: userJid,
     content: {
-      settings: {
-        default_sidebar_color: "#0E72ED",
-        is_split_sidebar: false,
-      },
       head: {
-        text: summaryAiResponse,
+        text: "Reminder Summary",
+        style: {
+          color: "#8338EC",
+          bold: true,
+          italic: false,
+        },
       },
+      body: [
+        {
+          type: "message",
+          text: airesponse,
+          style: {
+            color: "#0099ff",
+            bold: true,
+            italic: false,
+          },
+        },
+      ],
     },
   });
+  sendChatBotMsg(botRequest, contentStr);
 }
 
 function defaultCommand(botRequest: any) {
