@@ -55,6 +55,10 @@ export async function POST(request: Request) {
       console.log(`actionText = ${actionText}`);
       if (actionItem.action === "command" && actionItem.value === "cancel") {
         // ignore and delete the message.
+        deleteChatBotImMsg(
+          botRequest.payload.messageId,
+          getContentStrForDeleteMsg(botRequest),
+        );
       } else if (
         actionItem.action === "command" &&
         actionItem.value === "approve"
@@ -258,7 +262,7 @@ async function createReminderAfterConfirm(botRequest: any) {
       null,
     );
     //finally delete the message.
-    deleteChatBotImMsg(msgId);
+    deleteChatBotImMsg(msgId, getContentStrForDeleteMsg(botRequest));
   }
 }
 
@@ -418,7 +422,7 @@ async function updateChatBotImMsg(msgId: string, contentStr: string) {
   console.log(data);
 }
 
-async function deleteChatBotImMsg(msgId: string) {
+async function deleteChatBotImMsg(msgId: string, contentStr: string) {
   if (!msgId) {
     console.log(`msgId is not found. skipping...`);
     return;
@@ -431,6 +435,7 @@ async function deleteChatBotImMsg(msgId: string) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${await getAccessToken()}`,
       },
+      body: contentStr,
     })
   ).json();
   console.log(data);
@@ -519,6 +524,23 @@ function getContentStrForCreateReminderConfirmation(
         },
       ],
     },
+  });
+  return jsonStr;
+}
+
+function getContentStrForDeleteMsg(botRequest: any): any {
+  const {
+    payload: { robotJid, toJid, accountId, userJid, account_id },
+  } = botRequest;
+  const { user_jid, robot_jid, to_jid } = botRequest.payload.object
+    ? botRequest.payload.object
+    : {};
+  console.log(`botRequest = ${JSON.stringify(botRequest)}`);
+  let jsonStr = JSON.stringify({
+    robot_jid: robotJid ? robotJid : robot_jid,
+    to_jid: toJid ? toJid : to_jid,
+    account_id: accountId ? accountId : account_id,
+    user_jid: userJid ? userJid : user_jid,
   });
   return jsonStr;
 }
