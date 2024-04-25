@@ -84,7 +84,7 @@ function getCommand(cmd: string) {
   return command.toLowerCase();
 }
 
-export function sendChatBotMsg(botRequest: any, content: string) {
+export async function sendChatBotMsg(botRequest: any, content: string) {
   //console.log(`sending chatBotMsg contentStr = ${content}`);
   const data = await(
     await fetch(`${zoomApiHost}/v2/im/chat/messages`, {
@@ -291,6 +291,7 @@ async function createReminderAfterConfirm(botRequest: any) {
   let reminderObj = getReminderObjFromContentJson(botReqPayloadObj);
   reminderObj.reminderId = uuid();
   reminderObj.userId = userId;
+  reminderObj.accountId = accountId;
 
   console.log(`reminderObj is ${JSON.stringify(reminderObj)}`);
 

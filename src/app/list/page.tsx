@@ -5,7 +5,7 @@ import FormDialog from "@/app/list/form-dialog";
 import { Suspense, useEffect, useState } from "react";
 import { useReminderStore } from "@/store/reminder-store";
 import { useSearchParams } from "next/navigation";
-import { get } from "@/utils/request";
+import { get, post } from "@/utils/request";
 import { RecurringEnum, ReminderType, StatusEnum } from "@/types/reminderType";
 import { Textarea } from "@/components/ui/textarea";
 import { CaretSortIcon, FileIcon } from "@radix-ui/react-icons";
@@ -40,10 +40,11 @@ const List = () => {
     resetReminder: state.resetReminder,
   }));
   const [curReminder, setCurReminder] = useState<ReminderType | null>(null);
+  const [prompt, setPrompt] = useState("");
+
   const searchParams = useSearchParams();
   const message = searchParams.get("message");
   const userId = searchParams.get("userId");
-
   useEffect(() => {
     if (userId) {
       localStorage.setItem("userId", userId);
@@ -55,8 +56,15 @@ const List = () => {
     });
   }, [resetReminder]);
 
-  const generate = () => {
-    setCurReminder({ ...defaultValue, userId: getUserId() });
+  const generate = async () => {
+    const promptReminder = await post("/api/ai", { json: { text: prompt } });
+    console.log(promptReminder);
+    setCurReminder({
+      ...defaultValue,
+      userId: getUserId(),
+      description: promptReminder.title,
+      dueDate: promptReminder.dueDate,
+    });
   };
 
   useEffect(() => {
@@ -79,7 +87,13 @@ const List = () => {
           }}
         />
         <div className={"flex justify-center items-center gap-4 mb-4"}>
-          <Textarea className={"bg-white"} />
+          <Textarea
+            className={"bg-white"}
+            value={prompt}
+            onChange={(e) => {
+              setPrompt(e.target.value);
+            }}
+          />
           <Button className={"flex items-center gap-1"} onClick={generate}>
             <FileIcon className={"text-white"} />
             <span>Generate</span>

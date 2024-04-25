@@ -13,10 +13,9 @@ export async function getFromAIService(aiRequest: string) {
             message: `${aiRequest}`,
           },
         ],
-        model: "gpt-3.5-turbo",
-        task_id: "ze_team_remi_hackathon_2024_text_generation",
+        model: "claude-instant-v1",
+        task_id: "1",
         user_name: "test",
-        choices: 1,
       }),
     })
   ).json();

@@ -210,17 +210,17 @@ export async function updateUser(user: Partial<UserType>) {
   if (!userFromDb) {
     return;
   } else {
-    const userObjToUpdate: Partial<UserType> = userFromDb;
+    const userObjToUpdate: Partial<UserType> = {};
     userObjToUpdate.name = user.name;
     userObjToUpdate.preference = user.preference;
     userObjToUpdate.at = user.at;
     userObjToUpdate.rt = user.rt;
-    const res = await userFromDb.save();
-    return await userFromDb.update({
-      $set: userObjToUpdate,
-    });
+    //const res = await userFromDb.save();
+    // return await userFromDb.update({
+    //   $set: userObjToUpdate,
+    // });
+    await userFromDb.patch(_.omitBy(userObjToUpdate, _.isNil));
     console.log(`Updated User to DB = ${JSON.stringify(user)}`);
-    return res;
   }
 }
 
