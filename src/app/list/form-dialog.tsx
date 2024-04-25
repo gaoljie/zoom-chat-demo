@@ -65,14 +65,14 @@ const FormDialog = ({
       await post("/api/reminder", {
         json: {
           ...values,
-          dueDate: dayjs(values.dueDate).format("YYYY-MM-DD HH:MM:ss"),
+          dueDate: dayjs(values.dueDate).format("YYYY-MM-DD HH:mm:ss"),
         },
       });
     } else {
       await patch("/api/reminder", {
         json: {
           ...values,
-          dueDate: dayjs(values.dueDate).format("YYYY-MM-DD HH:MM:ss"),
+          dueDate: dayjs(values.dueDate).format("YYYY-MM-DD HH:mm:ss"),
         },
       });
     }
