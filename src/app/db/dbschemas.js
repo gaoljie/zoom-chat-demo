@@ -41,6 +41,14 @@ const remindersSchema = {
       type: "string",
       format: "date-time",
     },
+    accountId: {
+      type: "string",
+      format: "date-time",
+    },
+    timezone: {
+      type: "string",
+      format: "date-time",
+    },
   },
 };
 

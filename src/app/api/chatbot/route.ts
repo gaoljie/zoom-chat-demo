@@ -35,6 +35,8 @@ export async function POST(request: Request) {
       await summarizeReminders(botRequest);
     } else if (command === "list") {
       listReminders(botRequest);
+    } else if (command === "help") {
+      await sendHelpNotification(botRequest);
     } else {
       defaultCommand(
         botRequest,
@@ -82,9 +84,9 @@ function getCommand(cmd: string) {
   return command.toLowerCase();
 }
 
-async function sendChatBotMsg(botRequest, content: string) {
+export function sendChatBotMsg(botRequest: any, content: string) {
   //console.log(`sending chatBotMsg contentStr = ${content}`);
-  const data = await (
+  const data = await(
     await fetch(`${zoomApiHost}/v2/im/chat/messages`, {
       method: "POST",
       headers: {
@@ -92,7 +94,7 @@ async function sendChatBotMsg(botRequest, content: string) {
         Authorization: `Bearer ${await getAccessToken()}`,
       },
       body: content,
-    })
+    }),
   ).json();
   console.log(data);
 }
@@ -308,16 +310,17 @@ async function createReminderAfterConfirm(botRequest: any) {
 function getReminderObjFromContentJson(botReqPayloadObj: any): any {
   let reminderObj: Partial<ReminderType> = {};
   const sectionsArr = botReqPayloadObj.body.filter(
-    (e) => e.type === "section",
+    (e: any) => e.type === "section",
   )[0].sections;
   // console.log(`sectionsArr = ${JSON.stringify(sectionsArr)}`);
-  const fieldsArr = sectionsArr.filter((e) => e.type === "fields")[0].items;
+  const fieldsArr = sectionsArr.filter((e: any) => e.type === "fields")[0]
+    .items;
   const datePickObj = sectionsArr
-    .filter((e) => e.type === "datepicker")
-    .filter((e) => e.action_id === "datepicker123")[0];
+    .filter((e: any) => e.type === "datepicker")
+    .filter((e: any) => e.action_id === "datepicker123")[0];
   const timePickObj = sectionsArr
-    .filter((e) => e.type === "timepicker")
-    .filter((e) => e.action_id === "timepicker123")[0];
+    .filter((e: any) => e.type === "timepicker")
+    .filter((e: any) => e.action_id === "timepicker123")[0];
   // console.log(`fieldsArr = ${JSON.stringify(fieldsArr)}`);
   // console.log(`datePickObj = ${JSON.stringify(datePickObj)}`);
   // console.log(`timePickObj = ${JSON.stringify(timePickObj)}`);
@@ -483,9 +486,9 @@ function getContentStrForCreateReminderConfirmation(
   const {
     payload: { robotJid, toJid, accountId, userJid, account_id },
   } = botRequest;
-  const { user_jid, robot_jid, to_jid } = botRequest.payload.object
-    ? botRequest.payload.object
-    : {};
+  const { user_jid, robot_jid, to_jid } = (
+    botRequest.payload.object ? botRequest.payload.object : {}
+  ) as any;
   // console.log(`botRequest = ${ JSON.stringify(botRequest)}`);
   let jsonStr = JSON.stringify({
     robot_jid: robotJid ? robotJid : robot_jid,
@@ -567,9 +570,9 @@ function getContentStrForDeleteMsg(botRequest: any): any {
   const {
     payload: { robotJid, toJid, accountId, userJid, account_id },
   } = botRequest;
-  const { user_jid, robot_jid, to_jid } = botRequest.payload.object
-    ? botRequest.payload.object
-    : {};
+  const { user_jid, robot_jid, to_jid } = (
+    botRequest.payload.object ? botRequest.payload.object : {}
+  ) as any;
   //  console.log(`botRequest = ${ JSON.stringify(botRequest)}`);
   let jsonStr = JSON.stringify({
     robot_jid: robotJid ? robotJid : robot_jid,
@@ -743,5 +746,85 @@ function defaultCommand2(botRequest: any) {
       ],
     },
   });
+  sendChatBotMsg(botRequest, contentStr);
+}
+
+async function sendHelpNotification(botRequest) {
+  const {
+    payload: { robotJid, toJid, accountId, userJid, cmd, userId },
+  } = botRequest;
+  console.log(
+    `inside sendReminderNotification, reminder JSON = ${JSON.stringify(botRequest)}`,
+  );
+
+  const contentStr = JSON.stringify({
+    robot_jid: process.env.ZOOM_BOT_JID,
+    to_jid: toJid,
+    visible_to_user: userId,
+    account_id: accountId,
+    user_jid: userJid,
+    content: {
+      settings: {
+        default_sidebar_color: "#0E72ED",
+        is_split_sidebar: true,
+      },
+      head: {
+        text: "Reminder",
+      },
+      body: [
+        {
+          type: "section",
+          sections: [
+            {
+              type: "message",
+              text: "/help  ",
+              style: {
+                bold: true,
+              },
+            },
+            {
+              type: "message",
+              text: "help about the app",
+            },
+
+            {
+              type: "message",
+              text: "/create  ",
+              style: {
+                bold: true,
+              },
+            },
+            {
+              type: "message",
+              text: "create a new reminder. The Reminder app will remind you based on the schedule",
+            },
+            {
+              type: "message",
+              text: "/list  ",
+              style: {
+                bold: true,
+              },
+            },
+            {
+              type: "message",
+              text: "show list of upcoming reminders",
+            },
+            {
+              type: "message",
+              text: "/summary  ",
+              style: {
+                bold: true,
+              },
+            },
+            {
+              type: "message",
+              text: "Summary of reminders for the day",
+            },
+          ],
+        },
+      ],
+    },
+  });
+
   sendChatBotMsg(botRequest, contentStr);
 }
