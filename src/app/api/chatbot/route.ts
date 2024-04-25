@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     if (command === "create") {
       await createReminder(botRequest);
     } else if (command === "summary") {
-      summarizeReminders(botRequest);
+      await summarizeReminders(botRequest);
     } else if (command === "list") {
       listReminders(botRequest);
     } else {
@@ -124,7 +124,7 @@ async function listReminders(botRequest: any) {
   sendChatBotMsg(botRequest, contentStr);
 }
 
-await function summarizeReminders(botRequest: any) {
+async function summarizeReminders(botRequest: any) {
   const {
     payload: { robotJid, toJid, accountId, userJid, cmd, userId },
   } = botRequest;
@@ -149,7 +149,7 @@ await function summarizeReminders(botRequest: any) {
       },
     },
   });
-};
+}
 
 function defaultCommand(botRequest: any) {
   // parse cmd str and send notification.
