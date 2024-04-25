@@ -1,4 +1,3 @@
-import { RecurringEnum, ReminderType } from "@/types/reminderType";
 import { getFromAIService } from "@/utils/aiServiceClient";
 import { getRemindersFromDB } from "@/utils/remaninderService";
 

@@ -8,6 +8,7 @@ export const formSchema = z.object({
   tags: z.array(z.string()),
   recurring: RecurringEnum,
   dueDate: z.string(),
+  userId: z.string(),
 });
 
 export type FormSchemaType = z.infer<typeof formSchema>;
