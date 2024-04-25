@@ -25,30 +25,30 @@ export async function processReminders(): Promise<string> {
   for (let i = 0; i < dbRespons.length; i++) {
     if (
       validateReminderDue(dbRespons[i].dueDate, dbRespons[i].timezone) &&
-      dbRespons[i].status == "pending"
+      dbRespons[i].status != "DONE"
     ) {
       // Send Notification
       sendReminder(dbRespons[i]);
       console.log("reminder sent successfully");
       let reminder: ReminderType = dbRespons[i];
-      let updatedReminder: ReminderType = {
-        date: reminder.date,
-        time: reminder.time,
-        title: reminder.title,
-        description: reminder.description,
-        recurring: reminder.recurring,
-        priority: reminder.priority,
-        tags: reminder.tags,
-        userId: reminder.userId,
-        reminderId: reminder.reminderId,
-        dueDate: reminder.dueDate,
-        category: reminder.category,
-        status: "completed",
-        accountId: reminder.accountId,
-        timezone: reminder.timezone,
-      };
-      await updateReminder(updatedReminder);
-      console.log("saved updated reminder");
+      // let updatedReminder: ReminderType = {
+      //   date: reminder.date,
+      //   time: reminder.time,
+      //   title: reminder.title,
+      //   description: reminder.description,
+      //   recurring: reminder.recurring,
+      //   priority: reminder.priority,
+      //   tags: reminder.tags,
+      //   userId: reminder.userId,
+      //   reminderId: reminder.reminderId,
+      //   dueDate: reminder.dueDate,
+      //   category: reminder.category,
+      //   status: "DONE",
+      //   accountId: reminder.accountId,
+      //   timezone: reminder.timezone,
+      // };
+      // await updateReminder(updatedReminder);
+      // console.log("saved updated reminder");
     }
   }
   return "success";
@@ -59,17 +59,19 @@ function validateReminderDue(date: string, timezone: string): boolean {
     return false;
   }
   timezone = "America/New_York";
-  console.log("date :" + date);
+  console.log("reminder date :" + date);
   console.log("timezone :" + timezone);
   const currentDate = new Date(); // Get current date and time
   const currentDateISO = currentDate.toISOString(); // Convert to ISO format
   const reminderISO = moment
-    .tz(date, "YYYY-MM-DD hh:mm:ss A", timezone)
+    .tz(date, "YYYY-MM-DD hh:mm:ss", timezone)
     .toISOString();
 
   const systemDate: Date = new Date(currentDateISO);
-  const reminderDate: Date = new Date(reminderISO);
+  const reminderDate: Date = new Date(date);
+  console.log(`reminderDate = ${reminderDate} and systemDate = ${systemDate}`)
   if (reminderDate < systemDate) {
+    console.log(`reminderDate is less than systemDate`);
     return true;
   } else {
     return false;
