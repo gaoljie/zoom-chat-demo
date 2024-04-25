@@ -121,7 +121,7 @@ export async function updateReminder(reminder: ReminderType) {
   if (reminderFromDB) {
     const reminderObtToUpdate = {};
     if (reminder.title) {
-      reminderObtToUpdate.name = reminder.title;
+      reminderObtToUpdate.title = reminder.title;
     }
     if (reminder.description) {
       reminderObtToUpdate.description = reminder.description;
