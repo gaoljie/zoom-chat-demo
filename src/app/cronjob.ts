@@ -58,7 +58,7 @@ function validateReminderDue(date: string, timezone: string): boolean {
   if (!date) {
     return false;
   }
-  timezone = "America/New_York Time";
+  timezone = "America/New_York";
   console.log("date :" + date);
   console.log("timezone :" + timezone);
   const currentDate = new Date(); // Get current date and time
