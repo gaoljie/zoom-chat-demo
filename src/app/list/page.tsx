@@ -32,7 +32,7 @@ const List = () => {
     recurring: RecurringEnum.enum.NONE,
     userId: "",
     status: StatusEnum.enum.NONE,
-    dueDate: dayjs().add(1, "day").toString(),
+    dueDate: dayjs().toString(),
   };
   const { reminderList, resetReminder } = useReminderStore((state) => ({
     reminderList: state.reminderList.sort((a, b) =>

@@ -232,7 +232,14 @@ const FormDialog = ({
           </form>
         </Form>
         <DialogFooter>
-          <Button variant={"destructive"}>Cancel</Button>
+          <Button
+            variant={"destructive"}
+            onClick={() => {
+              setCurReminder(null);
+            }}
+          >
+            Cancel
+          </Button>
           <Button form={"reminder-form"} type="submit">
             Save changes
           </Button>
