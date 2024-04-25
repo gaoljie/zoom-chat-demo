@@ -62,9 +62,19 @@ const FormDialog = ({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     if (!values.reminderId) {
-      await post("/api/reminder", { json: { ...values } });
+      await post("/api/reminder", {
+        json: {
+          ...values,
+          dueDate: dayjs(values.dueDate).format("YYYY-MM-DD HH:MM:ss"),
+        },
+      });
     } else {
-      await patch("/api/reminder", { json: { ...values } });
+      await patch("/api/reminder", {
+        json: {
+          ...values,
+          dueDate: dayjs(values.dueDate).format("YYYY-MM-DD HH:MM:ss"),
+        },
+      });
     }
     const newList = await get<ReminderType[]>(
       `/api/reminder?userId=${getUserId()}`,
