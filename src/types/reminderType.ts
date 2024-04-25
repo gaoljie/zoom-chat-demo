@@ -15,6 +15,9 @@ export type ReminderType = {
   reminderId: string;
   dueDate: string;
   category: string;
+  status: string;
+  accountId: string;
+  timezone: string;
   status: z.infer<typeof StatusEnum>;
 };
 
