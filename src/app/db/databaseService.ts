@@ -1,6 +1,7 @@
-import { createRxDatabase } from "rxdb";
+import { createRxDatabase, addRxPlugin } from "rxdb";
 import { getRxStorageMongoDB } from "rxdb/plugins/storage-mongodb";
 import { getRxStorageMemory } from "rxdb/plugins/storage-memory";
+
 import { RxDBQueryBuilderPlugin } from "rxdb/plugins/query-builder";
 
 // const DB = await createRxDatabase({
@@ -8,8 +9,29 @@ import { RxDBQueryBuilderPlugin } from "rxdb/plugins/query-builder";
 //   storage: getRxStorageMemory(),
 // });
 
+import { RxDBUpdatePlugin } from "rxdb/plugins/update";
+
 import { remindersSchema, userSchema } from "./dbschemas";
-import { ReminderType, UserType } from "@/types/reminderType";
+import {
+  RecurringEnum,
+  ReminderType,
+  StatusEnum,
+  UserType,
+} from "@/types/reminderType";
+addRxPlugin(RxDBUpdatePlugin);
+
+const DB = process.env.MONGO_DB_CONNECTION
+  ? await createRxDatabase({
+      name: "hackathon_2024_db2",
+      storage: getRxStorageMongoDB({
+        connection: process.env.MONGO_DB_CONNECTION,
+      }),
+      ignoreDuplicate: false,
+    })
+  : await createRxDatabase({
+      name: "hackathon_2024_db",
+      storage: getRxStorageMemory(),
+    });
 
 const DB = await createRxDatabase({
   name: "hackathon_2024_db2",
@@ -111,10 +133,12 @@ export async function saveReminder(reminder: ReminderType) {
     title: reminder.title,
     description: reminder.description,
     category: reminder.category,
-    status: reminder.status,
-    dueDate: reminder.dueDate,
     timezone: reminder.timezone,
     accountId: reminder.accountId,
+    status: reminder.status || StatusEnum.enum.NONE,
+    dueDate: reminder.dueDate || new Date(),
+    recurring: reminder.recurring || RecurringEnum.enum.NONE,
+    tags: reminder.tags || [],
   });
   console.log(`Inserted Reminder to DB = ${JSON.stringify(result)}`);
   return result;
@@ -166,27 +190,40 @@ export async function updateReminder(reminder: ReminderType) {
 }
 
 export async function saveUser(user: UserType) {
-  console.log("inside InsertAnimal() method");
+  console.log("inside InsertUser() method");
 
   // run a query
   const result = await DB.users.insert({
-    id: user.userId,
+    userId: user.userId,
     name: user.name,
     preference: user.preference,
+    at: user.at,
+    rt: user.rt,
   });
 }
 
-export async function updateUser(user: UserType) {
+export async function updateUser(user: Partial<UserType>) {
   console.log("inside InsertAnimal() method");
   const userFromDb = await DB.users
     .findOne()
     .where("id")
     .eq(user.userId)
     .exec();
-  userFromDb.name = user.name;
-  userFromDb.preference = user.preference;
-  await userFromDb.save();
 
-  console.log(`Updated User to DB = ${JSON.stringify(user)}`);
-  return true;
+  if (!userFromDb) {
+    return;
+  } else {
+    userFromDb.name = user.name;
+    userFromDb.preference = user.preference;
+    userFromDb.at = user.at;
+    userFromDb.rt = user.rt;
+    const res = await userFromDb.save();
+
+    console.log(`Updated User to DB = ${JSON.stringify(user)}`);
+    return res;
+  }
+}
+
+export async function getUser(userId: string) {
+  return DB.users.findOne().where("userId").eq(userId).exec();
 }

@@ -1,5 +1,6 @@
 import { getAccessToken } from "@/utils/getAccessToken";
 import { getFromAIService } from "@/utils/aiServiceClient";
+import { generateReminderSummary } from "@/utils/summaryService";
 import { getReminderByUserId, saveReminder } from "../../db/databaseService";
 import { ReminderType } from "../../../types/reminderType";
 import { uuid } from "../../../utils/apiUtils";
@@ -33,8 +34,6 @@ export async function POST(request: Request) {
       await summarizeReminders(botRequest);
     } else if (command === "list") {
       listReminders(botRequest);
-    } else if (command === "help") {
-      await sendHelpNotification(botRequest);
     } else {
       defaultCommand(
         botRequest,
@@ -79,11 +78,11 @@ export async function POST(request: Request) {
 function getCommand(cmd: string) {
   let regEx = /[\s,;:]+/;
   const command = cmd.split(regEx)[0];
-  return command;
+  return command.toLowerCase();
 }
 
-export async function sendChatBotMsg(content: string) {
-  console.log(`sending chatBotMsg contentStr = ${content}`);
+async function sendChatBotMsg(botRequest, content: string) {
+  //console.log(`sending chatBotMsg contentStr = ${content}`);
   const data = await (
     await fetch(`${zoomApiHost}/v2/im/chat/messages`, {
       method: "POST",
@@ -110,7 +109,7 @@ async function createReminderPendingConfirm(botRequest: any) {
                    '${cmd}' based on this sentence extract the name of the event. 
                    Response should be only event name,start date format  with 24 hour clock format (yyyy-MM-dd hh:mm:ss) and timezone as IANA format. 
                    Populate the data in this json format {name: '', startDate: '', timeZone: ''} and return only the json.`;
-  console.log(`aiRequest = ${aiRequest}`);
+  // console.log(`aiRequest = ${aiRequest}`);
   let aiResponse = await getFromAIService(aiRequest);
   let aiRespObj = JSON.parse(aiResponse);
   // console.log(`aiResponse = ${aiResponse}`);
@@ -150,9 +149,7 @@ async function listReminders(botRequest: any) {
   const {
     payload: { robotJid, toJid, accountId, userJid, cmd, userId },
   } = botRequest;
-  console.log(
-    `inside listReminders, botRequest = ${JSON.stringify(botRequest)}`,
-  );
+  //  console.log(`inside listReminders, botRequest = ${JSON.stringify(botRequest)}`);
   let result = await getReminderByUserId(userId);
   console.log(`list reminders result = ${result}`);
 
@@ -193,14 +190,48 @@ async function listReminders(botRequest: any) {
   sendChatBotMsg(botRequest, contentStr);
 }
 
-await function summarizeReminders(botRequest: any) {
+async function summarizeReminders(botRequest: any) {
   const {
     payload: { robotJid, toJid, accountId, userJid, cmd, userId },
   } = botRequest;
+  console.log(
+    `inside summarizeReminders, botRequest = ${JSON.stringify(botRequest)}`,
+  );
 
-  console.log(`inside summarizeReminders`);
-  // parse cmd str and send notification.
-};
+  let summaryAiResponse = await generateReminderSummary(userId);
+  const summaryAiResponseStr = JSON.stringify(summaryAiResponse);
+  console.log(
+    "summarizeReminders --> summaryAiResponse " + summaryAiResponseStr,
+  );
+  const contentStr = JSON.stringify({
+    robot_jid: robotJid,
+    to_jid: toJid,
+    account_id: accountId,
+    user_jid: userJid,
+    content: {
+      head: {
+        text: "Reminder Summary",
+        style: {
+          color: "#8338EC",
+          bold: true,
+          italic: false,
+        },
+      },
+      body: [
+        {
+          type: "message",
+          text: summaryAiResponseStr,
+          style: {
+            color: "#0099ff",
+            bold: true,
+            italic: false,
+          },
+        },
+      ],
+    },
+  });
+  sendChatBotMsg(botRequest, contentStr);
+}
 
 function defaultCommand(
   botRequest: any,
@@ -273,7 +304,7 @@ function getReminderObjFromContentJson(botReqPayloadObj: any): any {
   const sectionsArr = botReqPayloadObj.body.filter(
     (e) => e.type === "section",
   )[0].sections;
-  console.log(`sectionsArr = ${JSON.stringify(sectionsArr)}`);
+  // console.log(`sectionsArr = ${JSON.stringify(sectionsArr)}`);
   const fieldsArr = sectionsArr.filter((e) => e.type === "fields")[0].items;
   const datePickObj = sectionsArr
     .filter((e) => e.type === "datepicker")
@@ -345,9 +376,7 @@ async function updateReminderFormFields(botRequest: any) {
     : undefined;
   const msgId = messageId ? messageId : bot_msg_id;
   console.log(`msgId is ${msgId}`);
-  console.log(
-    `eventName = ${event} , messageId = ${messageId}, actionItem = ${JSON.stringify(actionItem)}, fieldEditItem = ${JSON.stringify(fieldEditItem)} ,bot_msg_id = ${bot_msg_id} , datepicker_item = ${JSON.stringify(datepicker_item)}, timepicker_item = ${JSON.stringify(timepicker_item)} `,
-  );
+  // console.log(`eventName = ${event} , messageId = ${messageId}, actionItem = ${JSON.stringify(actionItem)}, fieldEditItem = ${JSON.stringify(fieldEditItem)} ,bot_msg_id = ${bot_msg_id} , datepicker_item = ${JSON.stringify(datepicker_item)}, timepicker_item = ${JSON.stringify(timepicker_item)} `);
   let reminderObj = getReminderObjFromContentJson(
     botReqPayloadObjObj
       ? botRequest.payload.object.original
@@ -395,9 +424,7 @@ async function updateReminderFormFields(botRequest: any) {
         .concat(":00");
     }
   }
-  console.log(
-    `reminderObj after updateFormFields = ${JSON.stringify(reminderObj)}`,
-  );
+  //  console.log(`reminderObj after updateFormFields = ${JSON.stringify(reminderObj)}`);
   let contentStrUpd = getContentStrForCreateReminderConfirmation(
     botRequest,
     reminderObj,
@@ -406,7 +433,7 @@ async function updateReminderFormFields(botRequest: any) {
 }
 
 async function updateChatBotImMsg(msgId: string, contentStr: string) {
-  console.log(`updating chatBotMsg contentStr = ${contentStr}`);
+  // console.log(`updating chatBotMsg contentStr = ${contentStr}`);
   if (!msgId) {
     console.log(`msgId is not found. skipping...`);
     return;
@@ -453,7 +480,7 @@ function getContentStrForCreateReminderConfirmation(
   const { user_jid, robot_jid, to_jid } = botRequest.payload.object
     ? botRequest.payload.object
     : {};
-  console.log(`botRequest = ${JSON.stringify(botRequest)}`);
+  // console.log(`botRequest = ${ JSON.stringify(botRequest)}`);
   let jsonStr = JSON.stringify({
     robot_jid: robotJid ? robotJid : robot_jid,
     to_jid: toJid ? toJid : to_jid,
@@ -537,7 +564,7 @@ function getContentStrForDeleteMsg(botRequest: any): any {
   const { user_jid, robot_jid, to_jid } = botRequest.payload.object
     ? botRequest.payload.object
     : {};
-  console.log(`botRequest = ${JSON.stringify(botRequest)}`);
+  //  console.log(`botRequest = ${ JSON.stringify(botRequest)}`);
   let jsonStr = JSON.stringify({
     robot_jid: robotJid ? robotJid : robot_jid,
     to_jid: toJid ? toJid : to_jid,
@@ -711,84 +738,4 @@ function defaultCommand2(botRequest: any) {
     },
   });
   sendChatBotMsg(botRequest, contentStr);
-}
-
-async function sendHelpNotification(botRequest) {
-  const {
-    payload: { robotJid, toJid, accountId, userJid, cmd, userId },
-  } = botRequest;
-  console.log(
-    `inside sendReminderNotification, reminder JSON = ${JSON.stringify(botRequest)}`,
-  );
-
-  const contentStr = JSON.stringify({
-    robot_jid: process.env.ZOOM_BOT_JID,
-    to_jid: toJid,
-    visible_to_user: userId,
-    account_id: accountId,
-    user_jid: userJid,
-    content: {
-      settings: {
-        default_sidebar_color: "#0E72ED",
-        is_split_sidebar: true,
-      },
-      head: {
-        text: "Reminder",
-      },
-      body: [
-        {
-          type: "section",
-          sections: [
-            {
-              type: "message",
-              text: "/help  ",
-              style: {
-                bold: true,
-              },
-            },
-            {
-              type: "message",
-              text: "help about the app",
-            },
-
-            {
-              type: "message",
-              text: "/create  ",
-              style: {
-                bold: true,
-              },
-            },
-            {
-              type: "message",
-              text: "create a new reminder. The Reminder app will remind you based on the schedule",
-            },
-            {
-              type: "message",
-              text: "/list  ",
-              style: {
-                bold: true,
-              },
-            },
-            {
-              type: "message",
-              text: "show list of upcoming reminders",
-            },
-            {
-              type: "message",
-              text: "/summary  ",
-              style: {
-                bold: true,
-              },
-            },
-            {
-              type: "message",
-              text: "Summary of reminders for the day",
-            },
-          ],
-        },
-      ],
-    },
-  });
-
-  sendChatBotMsg(contentStr);
 }
