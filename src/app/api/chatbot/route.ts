@@ -1,6 +1,10 @@
 import { getAccessToken } from "@/utils/getAccessToken";
 import { getFromAIService } from "@/utils/aiServiceClient";
+import { getReminderByUserId } from "../../db/databaseService";
+import { ReminderType } from "../../../types/reminderType";
+
 const zoomApiHost = process.env.ZOOM_API_HOST;
+
 export async function POST(request: Request) {
   const botRequest = await request.json();
   const {
@@ -8,26 +12,25 @@ export async function POST(request: Request) {
     payload: { robotJid, toJid, accountId, userJid, cmd },
   } = botRequest;
 
-
   console.log(JSON.stringify(botRequest));
   console.log(`cmd = ${cmd}`);
 
   if (event === "bot_notification") {
     const command = getCommand(cmd);
     if (command === "create") {
-       await createReminder(botRequest);
+      await createReminder(botRequest);
     } else if (command === "summary") {
       await summarizeReminders(botRequest);
     } else if (command === "list") {
-       listReminders(botRequest);
+      listReminders(botRequest);
     } else {
-       defaultCommand(botRequest);
+      defaultCommand(botRequest);
     }
     sendChatBotMsg(botRequest, "test");
     console.log(`successfully processed command = ${command}`);
   }
 
-  return Response.json({});
+  return Response.json({}, { status: 200 });
 }
 
 function getCommand(cmd: string) {
@@ -35,23 +38,25 @@ function getCommand(cmd: string) {
   return command;
 }
 
-async function sendChatBotMsg(botRequest, content:string) {
+async function sendChatBotMsg(botRequest, content: string) {
   const data = await (
-      await fetch(`${zoomApiHost}/v2/im/chat/messages`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${await getAccessToken()}`,
-        },
-        body: content,
-      })
+    await fetch(`${zoomApiHost}/v2/im/chat/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${await getAccessToken()}`,
+      },
+      body: content,
+    })
   ).json();
   console.log(data);
 }
 
 async function createReminder(botRequest: any) {
   // parse cmd str and send notification.
-  const { robotJid, toJid, accountId, userJid, cmd } = botRequest;
+  const {
+    payload: { robotJid, toJid, accountId, userJid, cmd, userId },
+  } = botRequest;
   let aiRequest = `response Json example :{ "name": "Reminder for exercise", "startDate": ${new Date()} }.
                    If Month and year not specified in date, calculate dates after this start date :'2024-04-24 14:30:12'.
                    If the date is not available please use today date. 
@@ -59,28 +64,79 @@ async function createReminder(botRequest: any) {
                    Based on the above instructions process below instructions.
                    'Create reminder for my exercise today at 5 PM EST' based on this sentence extract the name of the event. 
                    Response should be only event name,start date and end date  format  with 12 hour clock format (yyyy-MM-dd hh:mm:ss a) and timezone as IANA format. 
-                   Populate the data in this json format {name: '', startDate: '', timeZone: ''} and return only the json.` ;
+                   Populate the data in this json format {name: '', startDate: '', timeZone: ''} and return only the json.`;
 
   let aiResponse = await getFromAIService(aiRequest);
   let aiRespObj = JSON.parse(aiResponse);
   console.log(`aiResponse = ${aiResponse}`);
   console.log(`aiRespObj = ${aiRespObj}`);
-  console.log(`aiRespObj.name = ${aiRespObj['name']}`);
-  console.log(`aiRespObj.startDate = ${aiRespObj['startDate']}`);
-  console.log(`aiRespObj.timeZone = ${aiRespObj['timeZone']}`);
+  console.log(`aiRespObj.name = ${aiRespObj["name"]}`);
+  console.log(`aiRespObj.startDate = ${aiRespObj["startDate"]}`);
+  console.log(`aiRespObj.timeZone = ${aiRespObj["timeZone"]}`);
+  //saveReminder
 }
 
-function listReminders(botRequest: any) {
+async function listReminders(botRequest: any) {
+  const {
+    payload: { robotJid, toJid, accountId, userJid, cmd, userId },
+  } = botRequest;
+  console.log(
+    `inside listReminders, botRequest = ${JSON.stringify(botRequest)}`,
+  );
+  let result = await getReminderByUserId(userId);
+  console.log(`list reminders result = ${result}`);
+
+  const contentStr = JSON.stringify({
+    robot_jid: robotJid,
+    to_jid: toJid,
+    account_id: accountId,
+    user_jid: userJid,
+    content: {
+      settings: {
+        default_sidebar_color: "#0E72ED",
+        is_split_sidebar: false,
+      },
+      head: {
+        text: "List of Reminders",
+        sub_head: {
+          text: "I am a sub head text",
+        },
+      },
+      body: [
+        {
+          type: "section",
+          sections: result.map((reminder: ReminderType) => {
+            return {
+              type: "message",
+              text: reminder.title,
+              style: {
+                bold: false,
+              },
+            };
+          }),
+        },
+      ],
+    },
+  });
+
   // parse cmd str and send notification.
+  sendChatBotMsg(botRequest, contentStr);
 }
 
 await function summarizeReminders(botRequest: any) {
+  const {
+    payload: { robotJid, toJid, accountId, userJid, cmd, userId },
+  } = botRequest;
+
+  console.log(`inside summarizeReminders`);
   // parse cmd str and send notification.
-}
+};
 
 function defaultCommand(botRequest: any) {
   // parse cmd str and send notification.
-  const { robotJid, toJid, accountId, userJid, cmd } = botRequest;
+  const {
+    payload: { robotJid, toJid, accountId, userJid, cmd, userId },
+  } = botRequest;
   const contentStr = JSON.stringify({
     robot_jid: robotJid,
     to_jid: toJid,
@@ -227,7 +283,7 @@ function defaultCommand(botRequest: any) {
         {
           type: "file",
           icon_url:
-              "https://d24cgw3uvb9a9h.cloudfront.net/static/93516/image/new/ZoomLogo.png",
+            "https://d24cgw3uvb9a9h.cloudfront.net/static/93516/image/new/ZoomLogo.png",
           title: {
             text: "I am a file card title",
             file_url: "https://zoom.us",
@@ -238,6 +294,6 @@ function defaultCommand(botRequest: any) {
         },
       ],
     },
-  })
+  });
   sendChatBotMsg(botRequest, contentStr);
 }
