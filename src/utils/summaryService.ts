@@ -1,8 +1,12 @@
 import { getFromAIService } from "@/utils/aiServiceClient";
 import { getRemindersFromDB } from "@/utils/remaninderService";
 
-export async function generateReminderSummary(userId: string) {
-  let reminders = await getRemindersFromDB(userId);
+export async function generateReminderSummary(
+  userId: string,
+  dueDate: string,
+  status: string,
+) {
+  let reminders = await getRemindersFromDB(userId, dueDate, status);
   let aiResponse = "";
   let summary = "";
   if (reminders.length == 0) {
