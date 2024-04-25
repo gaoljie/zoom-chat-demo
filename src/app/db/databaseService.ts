@@ -57,8 +57,10 @@ export async function deleteReminder(id: string): Promise<ReminderType> {
         },
       })
       .exec();
-  result.remove();
-  console.log(`reminder removed from DB = ${JSON.stringify(result)}`);
+  if(result) {
+    result.remove();
+    console.log(`reminder removed from DB = ${JSON.stringify(result)}`);
+  }
   return result;
 }
 
@@ -108,8 +110,9 @@ export async function saveReminder(reminder: ReminderType) {
 
 export async function updateReminder(reminder: ReminderType) {
   console.log(`inside updateReminder() method, reminder obj = ${JSON.stringify(reminder)}`);
+  console.log(`inside updateReminder() method, reminder.reminderId = ${reminder.reminderId}`);
   // insert a record.
-  const reminderFromDB = await DB.users
+  const reminderFromDB = await DB.reminders
       .findOne({
         selector: {
           reminderId: reminder.reminderId,
@@ -118,21 +121,22 @@ export async function updateReminder(reminder: ReminderType) {
       .exec();
   console.log(` reminder from  DB, ${reminderFromDB}`);
   if (reminderFromDB) {
+    const reminderObtToUpdate = {};
     if (reminder.title) {
-      reminderFromDB.name = reminder.title;
+      reminderObtToUpdate.title = reminder.title;
     }
     if (reminder.description) {
-      reminderFromDB.description = reminder.description;
+      reminderObtToUpdate.description = reminder.description;
     }
-    if (reminder.date) {
-      reminderFromDB.dueDate = reminder.date;
+    if (reminder.dueDate) {
+      reminderObtToUpdate.dueDate = reminder.dueDate;
     }
     if (reminder.status) {
-      reminderFromDB.status = reminder.status;
+      reminderObtToUpdate.status = reminder.status;
     }
-    console.log(`save reminder to  DB, ${reminderFromDB}`);
+    console.log(`save reminder to  DB, ${reminderObtToUpdate}`);
 
-    await reminderFromDB.save();
+    await reminderFromDB.patch(reminderObtToUpdate);
   } else {
     console.log("reminder not found");
   }
