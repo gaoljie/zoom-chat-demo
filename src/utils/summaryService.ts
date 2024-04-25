@@ -21,5 +21,9 @@ export async function generateReminderSummary(userId: string) {
     });
     aiResponse = await getFromAIService(summary);
   }
+
+  if (aiResponse.length > 0) {
+    return aiResponse[0];
+  }
   return aiResponse;
 }
