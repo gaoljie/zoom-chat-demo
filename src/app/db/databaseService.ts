@@ -95,7 +95,7 @@ export async function getAllPendingReminders(): Promise<ReminderType[]> {
   const result: ReminderType[] = await DB.reminders
     .find({
       selector: {
-        status: "pending",
+        status: "NONE",
       },
     })
     .exec();
