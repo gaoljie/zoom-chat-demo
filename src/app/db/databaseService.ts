@@ -3,25 +3,25 @@ import { getRxStorageMongoDB } from "rxdb/plugins/storage-mongodb";
 import { getRxStorageMemory } from "rxdb/plugins/storage-memory";
 import { RxDBQueryBuilderPlugin } from "rxdb/plugins/query-builder";
 
-// const DB = await createRxDatabase({
-//   name: "hackathon_2024_db",
-//   storage: getRxStorageMemory(),
-// });
+const DB = await createRxDatabase({
+  name: "hackathon_2024_db",
+  storage: getRxStorageMemory(),
+});
 
 import { remindersSchema, userSchema } from "./dbschemas";
 import { ReminderType, UserType } from "@/types/reminderType";
 
-const DB = await createRxDatabase({
+/*const DB = await createRxDatabase({
   name: "hackathon_2024_db2",
   storage: getRxStorageMongoDB({
-    /**
+    /!**
      * MongoDB connection string
      * @link https://www.mongodb.com/docs/manual/reference/connection-string/
-     */
+     *!/
     connection: "mongodb://localhost:27017",
   }),
   ignoreDuplicate: false,
-});
+});*/
 
 //add a collection
 await DB.addCollections({
@@ -65,7 +65,7 @@ export async function deleteReminder(id: string): Promise<ReminderType> {
 }
 
 export async function getReminderByUserId(id: string): Promise<ReminderType[]> {
-  console.log("inside getReminder() method id: ", id);
+  console.log("inside getReminderByUserId() method , id: ", id);
   // run a query
   const result: ReminderType[] = await DB.reminders
     .find({
