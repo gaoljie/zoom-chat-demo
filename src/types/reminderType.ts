@@ -6,6 +6,7 @@ export const StatusEnum = z.enum(["NONE", "DONE"]);
 export type ReminderType = {
   date?: string;
   time?: string;
+  priority?: string;
   title: string;
   description: string;
   recurring: z.infer<typeof RecurringEnum>;
@@ -21,4 +22,6 @@ export type UserType = {
   userId: string;
   name: string;
   preference: string;
+  at: string;
+  rt: string;
 };

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { redirect } from "next/navigation";
-import { userContext } from "@/utils/userContext";
 import { get, post } from "@/utils/request";
+import { getUser, saveUser, updateUser } from "@/app/db/databaseService";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -29,10 +29,24 @@ export async function GET(request: NextRequest) {
     },
   });
 
-  userContext[id] = {
-    at: access_token,
-    rt: refresh_token,
-  };
+  const curUser = await getUser(id);
+
+  if (!curUser) {
+    await saveUser({
+      userId: id,
+      name: id,
+      preference: "no",
+      at: access_token,
+      rt: refresh_token,
+    });
+  } else {
+    await updateUser({
+      userId: id,
+      at: access_token,
+      rt: refresh_token,
+    });
+  }
+
   console.log(`userinfo ID after deriving OAuth token = ${id}`);
 
   redirect(`${zoomApiHost}/launch/chat?jid=robot_${process.env.ZOOM_BOT_JID}`);
