@@ -57,8 +57,10 @@ export async function deleteReminder(id: string): Promise<ReminderType> {
         },
       })
       .exec();
-  result.remove();
-  console.log(`reminder removed from DB = ${JSON.stringify(result)}`);
+  if(result) {
+    result.remove();
+    console.log(`reminder removed from DB = ${JSON.stringify(result)}`);
+  }
   return result;
 }
 
