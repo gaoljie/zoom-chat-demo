@@ -83,7 +83,7 @@ function getCommand(cmd: string) {
   return command.toLowerCase();
 }
 
-async function sendChatBotMsg(botRequest, content: string) {
+export async function sendChatBotMsg(botRequest, content: string) {
   //console.log(`sending chatBotMsg contentStr = ${content}`);
   const data = await (
     await fetch(`${zoomApiHost}/v2/im/chat/messages`, {
