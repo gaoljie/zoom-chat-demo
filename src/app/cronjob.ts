@@ -55,9 +55,10 @@ export async function processReminders(): Promise<string> {
 }
 
 function validateReminderDue(date: string, timezone: string): boolean {
-  if (!date || !timezone) {
+  if (!date) {
     return false;
   }
+  timezone = "America/New_York Time";
   console.log("date :" + date);
   console.log("timezone :" + timezone);
   const currentDate = new Date(); // Get current date and time
