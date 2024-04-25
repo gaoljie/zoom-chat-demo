@@ -1,6 +1,7 @@
 import { createRxDatabase } from "rxdb";
 import { getRxStorageMongoDB } from "rxdb/plugins/storage-mongodb";
 import { getRxStorageMemory } from "rxdb/plugins/storage-memory";
+import { RxDBQueryBuilderPlugin } from "rxdb/plugins/query-builder";
 
 // const DB = await createRxDatabase({
 //   name: "hackathon_2024_db",
@@ -32,17 +33,34 @@ await DB.addCollections({
   },
 });
 
-export async function getReminder(id: string): Promise<ReminderType[]> {
+export async function getReminder(id: string): Promise<ReminderType> {
   console.log("inside getReminder() method id: ", id);
   // run a query
-  const result: ReminderType[] = await DB.reminders
-    .find({
+  const result: ReminderType = await DB.reminders
+    .findOne({
       selector: {
         reminderId: id,
       },
     })
     .exec();
   console.log(`reminders from DB = ${JSON.stringify(result)}`);
+  return result;
+}
+
+export async function deleteReminder(id: string): Promise<ReminderType> {
+  console.log("inside getReminder() method id: ", id);
+  // run a query
+  const result = await DB.reminders
+    .findOne({
+      selector: {
+        reminderId: id,
+      },
+    })
+    .exec();
+  if (result) {
+    result.remove();
+    console.log(`reminder removed from DB = ${JSON.stringify(result)}`);
+  }
   return result;
 }
 
@@ -91,31 +109,41 @@ export async function saveReminder(reminder: ReminderType) {
 }
 
 export async function updateReminder(reminder: ReminderType) {
-  console.log("inside InsertAnimal() method");
+  console.log(
+    `inside updateReminder() method, reminder obj = ${JSON.stringify(reminder)}`,
+  );
+  console.log(
+    `inside updateReminder() method, reminder.reminderId = ${reminder.reminderId}`,
+  );
   // insert a record.
-  const reminderFromDB = await DB.users
-    .findOne()
-    .where("id")
-    .eq(reminder.reminderId)
+  const reminderFromDB = await DB.reminders
+    .findOne({
+      selector: {
+        reminderId: reminder.reminderId,
+      },
+    })
     .exec();
+  console.log(` reminder from  DB, ${reminderFromDB}`);
   if (reminderFromDB) {
+    const reminderObtToUpdate = {};
     if (reminder.title) {
-      reminderFromDB.name = reminder.title;
+      reminderObtToUpdate.title = reminder.title;
     }
     if (reminder.description) {
-      reminderFromDB.description = reminder.description;
+      reminderObtToUpdate.description = reminder.description;
     }
-    if (reminder.date) {
-      reminderFromDB.dueDate = reminder.date;
+    if (reminder.dueDate) {
+      reminderObtToUpdate.dueDate = reminder.dueDate;
     }
     if (reminder.status) {
-      reminderFromDB.status = reminder.status;
+      reminderObtToUpdate.status = reminder.status;
     }
-    await reminderFromDB.save();
+    console.log(`save reminder to  DB, ${reminderObtToUpdate}`);
+
+    await reminderFromDB.patch(reminderObtToUpdate);
   } else {
     console.log("reminder not found");
   }
-  reminderFromDB.name = reminder.title;
   console.log(`Updated Reminder to DB = ${JSON.stringify(reminderFromDB)}`);
   return reminderFromDB;
 }
