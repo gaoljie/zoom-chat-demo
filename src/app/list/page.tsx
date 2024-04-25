@@ -39,14 +39,15 @@ const List = () => {
     reminderList: state.reminderList,
     resetReminder: state.resetReminder,
   }));
-  console.log(reminderList);
-
-  // return [];
   const [curReminder, setCurReminder] = useState<ReminderType | null>(null);
   const searchParams = useSearchParams();
   const message = searchParams.get("message");
+  const userId = searchParams.get("userId");
 
   useEffect(() => {
+    if (userId) {
+      localStorage.setItem("userId", userId);
+    }
     if (!getUserId()) return;
     get<ReminderType[]>(`/api/reminder?userId=${getUserId()}`).then((res) => {
       console.log(res);
@@ -55,7 +56,7 @@ const List = () => {
   }, [resetReminder]);
 
   const generate = () => {
-    setCurReminder(defaultValue);
+    setCurReminder({ ...defaultValue, userId: getUserId() });
   };
 
   useEffect(() => {

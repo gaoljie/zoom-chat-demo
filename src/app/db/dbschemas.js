@@ -59,6 +59,12 @@ const userSchema = {
     preference: {
       type: "string",
     },
+    at: {
+      type: "string",
+    },
+    rt: {
+      type: "string",
+    },
     name: {
       type: "string",
     },
