@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import { patch } from "@/utils/request";
 const ReminderItem = ({
   reminderId,
-  description,
+  title,
   status,
   dueDate,
   onClick,
@@ -25,7 +25,7 @@ const ReminderItem = ({
         }
         onClick={onClick}
       >
-        <span className={isDone ? "line-through" : ""}>{description}</span>
+        <span className={isDone ? "line-through" : ""}>{title}</span>
         {showDate ? (
           <span className={"text-rose-600 text-xs"}>
             {curDate.format("MMM/DD")}

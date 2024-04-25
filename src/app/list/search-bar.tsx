@@ -71,7 +71,7 @@ const SearchBar = ({
                 onClickHandler(item);
               }}
             >
-              {item.description}
+              {item.title}
             </li>
           ))}
         </ul>

@@ -62,7 +62,7 @@ const List = () => {
     setCurReminder({
       ...defaultValue,
       userId: getUserId(),
-      description: promptReminder.title,
+      title: promptReminder.title,
       dueDate: promptReminder.dueDate,
     });
   };
@@ -72,7 +72,7 @@ const List = () => {
       setCurReminder({
         ...defaultValue,
         userId: getUserId(),
-        description: message,
+        title: message,
       });
     }
   }, [message]);
