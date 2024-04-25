@@ -18,6 +18,7 @@ import {
   StatusEnum,
   UserType,
 } from "@/types/reminderType";
+import _ from "lodash";
 addRxPlugin(RxDBUpdatePlugin);
 
 const DB = process.env.MONGO_DB_CONNECTION
@@ -32,14 +33,6 @@ const DB = process.env.MONGO_DB_CONNECTION
       name: "hackathon_2024_db",
       storage: getRxStorageMemory(),
     });
-
-const DB = await createRxDatabase({
-  name: "hackathon_2024_db2",
-  storage: getRxStorageMongoDB({
-    connection: "mongodb://localhost:27017",
-  }),
-  ignoreDuplicate: false,
-});
 
 //add a collection
 await DB.addCollections({
@@ -181,7 +174,9 @@ export async function updateReminder(reminder: ReminderType) {
       timezone: reminder.timezone,
       accountId: reminder.accountId,
     };
-    await reminderFromDB.patch(updatedReminder);
+
+    console.log(_.omitBy(updatedReminder, _.isNil));
+    await reminderFromDB.patch(_.omitBy(updatedReminder, _.isNil));
   } else {
     console.log("reminder not found");
   }

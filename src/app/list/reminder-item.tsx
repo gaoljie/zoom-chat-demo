@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useReminderStore } from "@/store/reminder-store";
 import { SquareCheck } from "lucide-react";
 import dayjs from "dayjs";
+import { patch } from "@/utils/request";
 const ReminderItem = ({
   reminderId,
   description,
@@ -33,7 +34,14 @@ const ReminderItem = ({
       </button>
       <Button
         variant={"ghost"}
-        onClick={() => {
+        onClick={async () => {
+          await patch("/api/reminder", {
+            json: {
+              reminderId,
+              status: isDone ? StatusEnum.enum.NONE : StatusEnum.enum.DONE,
+            },
+          });
+
           updateReminder(reminderId, {
             status: isDone ? StatusEnum.enum.NONE : StatusEnum.enum.DONE,
           });

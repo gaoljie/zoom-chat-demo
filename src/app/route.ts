@@ -6,16 +6,17 @@ const zoomApiHost = process.env.ZOOM_API_HOST;
 
 export async function GET(request: Request) {
   const requestHeaders = new Headers(request.headers);
-  const { uid } = getAppContext(
+  const { uid, actid } = getAppContext(
     requestHeaders.get("x-zoom-app-context") as string,
   );
 
-  if (!requestHeaders.get("message_id")) {
+  if (!requestHeaders.get("message_id") || actid === "list_reminders") {
     redirect(`/list?userId=${uid}`);
   }
 
   console.log(
     uid,
+    requestHeaders,
     requestHeaders.get("message_id"),
     requestHeaders.get("session_id")?.split("@")[0],
   );
