@@ -1,7 +1,7 @@
 import { getAppContext } from "@/utils/getAppContext";
-import { userContext } from "@/utils/userContext";
 import { redirect } from "next/navigation";
 import { get, post } from "@/utils/request";
+import { getUser, updateUser } from "@/app/db/databaseService";
 const zoomApiHost = process.env.ZOOM_API_HOST;
 
 export async function GET(request: Request) {
@@ -18,8 +18,14 @@ export async function GET(request: Request) {
     uid,
     requestHeaders.get("message_id"),
     requestHeaders.get("session_id")?.split("@")[0],
-    userContext,
   );
+
+  const curUser = await getUser(uid);
+
+  if (!curUser) {
+    throw new Error("user not found");
+  }
+
   const { message } = await get<{ message: string }>(
     `${zoomApiHost}/v2/chat/users/me/messages/${requestHeaders.get("message_id")}`,
     {
@@ -27,14 +33,14 @@ export async function GET(request: Request) {
         to_contact: requestHeaders.get("session_id")?.split("@")[0] as string,
       },
       headers: {
-        Authorization: `Bearer ${userContext[uid].at}`,
+        Authorization: `Bearer ${curUser.at}`,
       },
       hooks: {
         beforeRetry: [
           async () => {
             const tokenParams = new URLSearchParams();
             tokenParams.set("grant_type", "refresh_token");
-            tokenParams.set("refresh_token", userContext[uid].rt);
+            tokenParams.set("refresh_token", curUser.rt);
 
             const { access_token, refresh_token } = await post<{
               access_token: string;
@@ -45,11 +51,14 @@ export async function GET(request: Request) {
                 Authorization: `Basic ${btoa(`${process.env.ZOOM_CLIENT_ID as string}:${process.env.ZOOM_CLIENT_SECRET as string}`)}`,
               },
             });
-
-            userContext[uid] = {
+            await updateUser({
+              userId: uid,
               at: access_token,
               rt: refresh_token,
-            };
+            });
+
+            curUser.at = access_token;
+            curUser.rt = refresh_token;
           },
         ],
       },
