@@ -4,6 +4,7 @@ import { generateReminderSummary } from "@/utils/summaryService";
 import { getReminderByUserId, saveReminder } from "../../db/databaseService";
 import { ReminderType } from "../../../types/reminderType";
 import { uuid } from "../../../utils/apiUtils";
+import { extractDateKeywords } from "../../../utils/apiUtils";
 
 const zoomApiHost = process.env.ZOOM_API_HOST;
 
@@ -199,8 +200,13 @@ async function summarizeReminders(botRequest: any) {
   console.log(
     `inside summarizeReminders, botRequest = ${JSON.stringify(botRequest)}`,
   );
-
-  let summaryAiResponse = await generateReminderSummary(userId, "today", "");
+  const dateKeyword = extractDateKeywords(cmd);
+  console.log(dateKeyword);
+  let summaryAiResponse = await generateReminderSummary(
+    userId,
+    dateKeyword,
+    "",
+  );
   const summaryAiResponseStr = JSON.stringify(summaryAiResponse);
   console.log(
     "summarizeReminders --> summaryAiResponse " + summaryAiResponseStr,
