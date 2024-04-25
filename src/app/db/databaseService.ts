@@ -65,7 +65,7 @@ export async function deleteReminder(id: string): Promise<ReminderType> {
 }
 
 export async function getReminderByUserId(id: string): Promise<ReminderType[]> {
-  console.log("inside getReminder() method id: ", id);
+  console.log("inside getReminderByUserId() method , id: ", id);
   // run a query
   const result: ReminderType[] = await DB.reminders
     .find({
