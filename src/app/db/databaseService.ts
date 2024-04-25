@@ -1,7 +1,7 @@
 import { createRxDatabase } from "rxdb";
 import { getRxStorageMongoDB } from "rxdb/plugins/storage-mongodb";
 import { getRxStorageMemory } from "rxdb/plugins/storage-memory";
-import { RxDBQueryBuilderPlugin } from 'rxdb/plugins/query-builder';
+import { RxDBQueryBuilderPlugin } from "rxdb/plugins/query-builder";
 
 // const DB = await createRxDatabase({
 //   name: "hackathon_2024_db",
@@ -50,14 +50,14 @@ export async function getReminder(id: string): Promise<ReminderType> {
 export async function deleteReminder(id: string): Promise<ReminderType> {
   console.log("inside getReminder() method id: ", id);
   // run a query
-  const result  = await DB.reminders
-      .findOne({
-        selector: {
-          reminderId: id,
-        },
-      })
-      .exec();
-  if(result) {
+  const result = await DB.reminders
+    .findOne({
+      selector: {
+        reminderId: id,
+      },
+    })
+    .exec();
+  if (result) {
     result.remove();
     console.log(`reminder removed from DB = ${JSON.stringify(result)}`);
   }
@@ -92,6 +92,20 @@ export async function getAllPendingReminders(): Promise<ReminderType[]> {
   return result;
 }
 
+export async function getCompletedReminders(): Promise<ReminderType[]> {
+  console.log("inside getCompletedReminders() method id: ");
+  // run a query
+  const result: ReminderType[] = await DB.reminders
+    .find({
+      selector: {
+        status: "completed",
+      },
+    })
+    .exec();
+  console.log(`reminders from DB = ${JSON.stringify(result)}`);
+  return result;
+}
+
 export async function saveReminder(reminder: ReminderType) {
   console.log("inside saveReminder() method");
   // insert a record.
@@ -109,34 +123,38 @@ export async function saveReminder(reminder: ReminderType) {
 }
 
 export async function updateReminder(reminder: ReminderType) {
-  console.log(`inside updateReminder() method, reminder obj = ${JSON.stringify(reminder)}`);
-  console.log(`inside updateReminder() method, reminder.reminderId = ${reminder.reminderId}`);
+  console.log(
+    `inside updateReminder() method, reminder obj = ${JSON.stringify(reminder)}`,
+  );
+  console.log(
+    `inside updateReminder() method, reminder.reminderId = ${reminder.reminderId}`,
+  );
   // insert a record.
   const reminderFromDB = await DB.reminders
-      .findOne({
-        selector: {
-          reminderId: reminder.reminderId,
-        },
-      })
-      .exec();
+    .findOne({
+      selector: {
+        reminderId: reminder.reminderId,
+      },
+    })
+    .exec();
   console.log(` reminder from  DB, ${reminderFromDB}`);
   if (reminderFromDB) {
-    const reminderObtToUpdate = {};
+    let reminderObtToUpdate: ReminderType = reminderFromDB;
     if (reminder.title) {
-      reminderObtToUpdate.title = reminder.title;
+      reminderFromDB.title = reminder.title;
     }
     if (reminder.description) {
-      reminderObtToUpdate.description = reminder.description;
+      reminderFromDB.description = reminder.description;
     }
     if (reminder.dueDate) {
-      reminderObtToUpdate.dueDate = reminder.dueDate;
+      reminderFromDB.dueDate = reminder.dueDate;
     }
     if (reminder.status) {
-      reminderObtToUpdate.status = reminder.status;
+      reminderFromDB.status = reminder.status;
     }
-    console.log(`save reminder to  DB, ${reminderObtToUpdate}`);
+    console.log(`save reminder to  DB, ${reminderFromDB}`);
 
-    await reminderFromDB.patch(reminderObtToUpdate);
+    await reminderFromDB.patch(reminderFromDB);
   } else {
     console.log("reminder not found");
   }
