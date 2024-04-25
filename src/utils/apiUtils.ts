@@ -7,3 +7,38 @@ export function uuid() {
     ).toString(16),
   );
 }
+
+export function filterReminders(reminders, status, dueDate) {
+  // Filter by status
+  let filteredReminders = reminders.filter((reminder) => {
+    if (status === "DONE") {
+      return reminder.status === "DONE";
+    } else if (status === "NONE") {
+      return reminder.status === "NONE";
+    } else {
+      return true; // No status filter
+    }
+  }); // Filter by due date
+  if (dueDate === "today") {
+    const today = new Date().toISOString().split("T")[0];
+    filteredReminders = filteredReminders.filter((reminder) => {
+      const reminderDueDate = reminder.dueDate.split("T")[0];
+      return reminderDueDate === today;
+    });
+  } else if (dueDate === "tomorrow") {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowDateString = tomorrow.toISOString().split("T")[0];
+    filteredReminders = filteredReminders.filter((reminder) => {
+      const reminderDueDate = reminder.dueDate.split("T")[0];
+      return reminderDueDate === tomorrowDateString;
+    });
+  }
+  return filteredReminders;
+}
+
+export function extractDateKeywords(text) {
+  const regex = /\b(?:tomorrow|today)\b/gi;
+  const matches = text.match(regex);
+  return matches ? matches[0] : null;
+}

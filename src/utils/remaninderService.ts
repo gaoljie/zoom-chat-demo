@@ -1,5 +1,15 @@
 import { getReminderByUserId } from "../app/db/databaseService";
-export async function getRemindersFromDB(userId: string) {
+import { filterReminders } from "./apiUtils";
+export async function getRemindersFromDB(
+  userId: string,
+  dueDate: string,
+  status: string,
+) {
   let remaindersByuserId = await getReminderByUserId(userId);
-  return remaindersByuserId;
+  const filteredReminders = filterReminders(
+    remaindersByuserId,
+    dueDate,
+    status,
+  );
+  return filteredReminders;
 }

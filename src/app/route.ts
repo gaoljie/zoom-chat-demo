@@ -6,16 +6,17 @@ const zoomApiHost = process.env.ZOOM_API_HOST;
 
 export async function GET(request: Request) {
   const requestHeaders = new Headers(request.headers);
-  const { uid } = getAppContext(
+  const { uid, actid } = getAppContext(
     requestHeaders.get("x-zoom-app-context") as string,
   );
 
-  if (!requestHeaders.get("message_id")) {
+  if (!requestHeaders.get("message_id") || actid === "list_reminders") {
     redirect(`/list?userId=${uid}`);
   }
 
   console.log(
     uid,
+    requestHeaders,
     requestHeaders.get("message_id"),
     requestHeaders.get("session_id")?.split("@")[0],
   );
@@ -45,7 +46,7 @@ export async function GET(request: Request) {
             const { access_token, refresh_token } = await post<{
               access_token: string;
               refresh_token: string;
-            }>(`https://zoom.us/oauth/token`, {
+            }>(`${process.env.ZOOM_API_HOST}/oauth/token`, {
               body: tokenParams,
               headers: {
                 Authorization: `Basic ${btoa(`${process.env.ZOOM_CLIENT_ID as string}:${process.env.ZOOM_CLIENT_SECRET as string}`)}`,

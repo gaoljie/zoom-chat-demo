@@ -18,6 +18,7 @@ import {
   StatusEnum,
   UserType,
 } from "@/types/reminderType";
+import _ from "lodash";
 addRxPlugin(RxDBUpdatePlugin);
 
 const DB = process.env.MONGO_DB_CONNECTION
@@ -32,14 +33,6 @@ const DB = process.env.MONGO_DB_CONNECTION
       name: "hackathon_2024_db",
       storage: getRxStorageMemory(),
     });
-
-const DB = await createRxDatabase({
-  name: "hackathon_2024_db2",
-  storage: getRxStorageMongoDB({
-    connection: "mongodb://localhost:27017",
-  }),
-  ignoreDuplicate: false,
-});
 
 //add a collection
 await DB.addCollections({
@@ -181,7 +174,9 @@ export async function updateReminder(reminder: ReminderType) {
       timezone: reminder.timezone,
       accountId: reminder.accountId,
     };
-    await reminderFromDB.patch(updatedReminder);
+
+    console.log(_.omitBy(updatedReminder, _.isNil));
+    await reminderFromDB.patch(_.omitBy(updatedReminder, _.isNil));
   } else {
     console.log("reminder not found");
   }
@@ -203,27 +198,38 @@ export async function saveUser(user: UserType) {
 }
 
 export async function updateUser(user: Partial<UserType>) {
-  console.log("inside InsertAnimal() method");
+  console.log("inside updateUser() method");
   const userFromDb = await DB.users
-    .findOne()
-    .where("id")
-    .eq(user.userId)
+    .findOne({
+      selector: {
+        userId: user.userId,
+      },
+    })
     .exec();
 
   if (!userFromDb) {
     return;
   } else {
-    userFromDb.name = user.name;
-    userFromDb.preference = user.preference;
-    userFromDb.at = user.at;
-    userFromDb.rt = user.rt;
+    const userObjToUpdate: Partial<UserType> = userFromDb;
+    userObjToUpdate.name = user.name;
+    userObjToUpdate.preference = user.preference;
+    userObjToUpdate.at = user.at;
+    userObjToUpdate.rt = user.rt;
     const res = await userFromDb.save();
-
+    return await userFromDb.update({
+      $set: userObjToUpdate,
+    });
     console.log(`Updated User to DB = ${JSON.stringify(user)}`);
     return res;
   }
 }
 
 export async function getUser(userId: string) {
-  return DB.users.findOne().where("userId").eq(userId).exec();
+  return await DB.users
+    .findOne({
+      selector: {
+        userId: userId,
+      },
+    })
+    .exec();
 }
